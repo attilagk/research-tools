@@ -1,0 +1,12 @@
+#! /bin/sed -f
+
+# Convert markdown from kramdown to pandoc flavor
+
+# substitute inline $$ math delimiters to single $
+/\$\$[^$]\+\$\$/ s/\$\$/\$/g
+
+# delete lines with sole $$ delimiting a regular LaTeX math block
+/^\s*\$\$\s*$/ d
+
+# change the fence character of code chunks
+/\~\{3,\}/ s//```/g

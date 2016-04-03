@@ -1,0 +1,9 @@
+#! /bin/sed -f
+
+# Convert markdown from pandoc to kramdown flavor.
+
+# substitute inline single $ math delimiters to doubles ($$)
+/\$[^$]\+\$/ s/\$/\$\$/g
+
+# code block from fence ``` to fence ~~~
+/```/ s//~~~/g

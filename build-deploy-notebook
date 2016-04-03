@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Usage: build-deploy-notebook [servername]
+
+# set server to deploy to
+SERVER=${1:-bernie}
+
+cd ~/lab-notebook
+# build; note the second config file containing server-specific settings
+bundle exec jekyll build -c _config.yml,_config.${SERVER}.yml
+
+# deploy to server
+rsync -ar --delete-after --delete-excluded _site/ ${SERVER}:~/Sites/
+

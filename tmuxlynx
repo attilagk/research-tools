@@ -1,0 +1,13 @@
+#!/bin/sh
+NCOLS=$(tput cols)
+if [ "$NCOLS" -gt "140" ]
+then
+   if [ "x$VIM_PANE" = "x" ]
+   then
+       tmux split-window -h "lynx $1 && exit"
+   else
+       tmux split-window -h -t $VIM_PANE "lynx $1 && exit"
+   fi
+else
+   tmux new-window "lynx $1 && exit"
+fi
