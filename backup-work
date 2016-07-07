@@ -1,0 +1,26 @@
+#! /bin/sh
+
+# Create backup of /home/attila for work by excluding private directories
+
+# source and target directories of backup
+NAME=$(basename $0)
+SOURCEDIR="/home/attila"
+TARGETDIR="/media/attila/seagate-attila/$NAME"
+
+# list of installed Debian/Ubuntu packages
+dpkg -l > ~attila/backup/dpkg.list
+
+# clean up old backups
+PASSPHRASE=chesslab13 duplicity remove-older-than 2Y \
+    file://$TARGETDIR
+
+# the main backup
+PASSPHRASE=chesslab13 duplicity \
+    --full-if-older-than 1M \
+    --log-file ~attila/backup/${NAME}.log \
+    --log-file ${TARGETDIR}.log \
+    --exclude $SOURCEDIR/Documents \
+    --exclude $SOURCEDIR/Downloads \
+    --exclude $SOURCEDIR/.cache \
+    $SOURCEDIR \
+    file://$TARGETDIR

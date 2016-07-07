@@ -1,0 +1,32 @@
+#! /bin/sh
+
+case $1 in
+    on|start|up) {
+        # exit if server is already running
+        pgrep -f 'jekyll serve' &&
+            { echo "${0}: Server is already running.  Exiting..."; exit 1; }
+            # otherwise start server and open with browser
+            echo "${0}: Starting server..."
+            cd ~/lab-notebook
+            bundle exec jekyll serve --detach
+            xdg-open http://127.0.0.1:4000/~attila/
+        } ;;
+    off|stop|down) pkill -f 'jekyll serve' ;;
+    -h|--help) cat <<EOF
+
+Get server PID (none unless running):
+$(basename $0) [info]
+
+Start server:
+$(basename $0) on|start|up
+
+Stop server:
+$(basename $0) off|stop|down
+
+Display this help message:
+$(basename $0) -h|--help
+
+EOF
+;;
+    info|*) echo "server PID: $(pgrep -f jekyll); for usage type $(basename $0) -h|--help" ;;
+esac
