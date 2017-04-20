@@ -1,0 +1,41 @@
+#!/bin/bash
+# fastq-stats: basic statistics on a fastq file
+
+usage=$(cat <<EOF
+usage:
+fastq-stats readcount|readlength|basecount file.fq|file.fq.gz
+fqstats rc|rl|bc file.fq|file.fq.gz
+EOF
+)
+
+# measure read length in a possibly gzipped fastq file
+readlength() {
+    # is argument a gzipped file?
+    if gzip -l $1 >& /dev/null; then
+        # start from the first 100 lines of binary gzipped file
+        sed 100q $1 | zcat 2> /dev/null | sed -n '2 p' | wc -c
+    else
+        sed -n '2 p' $1 | wc -c
+    fi
+}
+
+# count reads in a possibly gzipped fastq file
+readcount() {
+    # is argument a gzipped file?
+    if gzip -l $1 >& /dev/null; then
+        echo $(($(zcat $1 | wc -l) / 4))
+    else
+        echo $(($(cat $1 | wc -l) / 4))
+    fi
+}
+
+# without a second argument print usage and exit
+if [ -z $2 ]; then echo -e "$usage"; exit 0; fi
+
+case $1 in
+    help|usage) echo -e "$usage" ;;
+    readcount|rc) readcount $2 ;;
+    readlength|rl) readlength $2 ;;
+    basecount|bc) echo $(($(readlength $2) * $(readcount $2))) ;;
+    *) echo -e "error: $0\n$usage" 2>&1; exit 1;;
+esac

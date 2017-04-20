@@ -10,6 +10,12 @@ TARGETDIR="/media/attila/Backup/$NAME"
 # list of installed Debian/Ubuntu packages
 dpkg -l > ~attila/backup/dpkg.list
 
+# list of installed optional 3rd party packages
+find /opt -maxdepth 2 > ~attila/backup/opt.list
+
+# list of locally installed programs
+find /usr/local -maxdepth 2 > ~attila/backup/local.list
+
 # clean up old backups
 PASSPHRASE=hillbilly duplicity remove-older-than 2Y \
     file://$TARGETDIR
@@ -21,5 +27,6 @@ PASSPHRASE=hillbilly duplicity \
     --log-file ${TARGETDIR}.log \
     --exclude $SOURCEDIR/Downloads \
     --exclude $SOURCEDIR/.cache \
+    --exclude $SOURCEDIR/data \
     $SOURCEDIR \
     file://$TARGETDIR

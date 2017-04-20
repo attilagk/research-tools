@@ -1,0 +1,24 @@
+#!/bin/bash
+BWA_INDEX=${BWA_INDEX:-/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/bwa/Homo_sapiens.GRCh37.75.dna.primary_assembly}
+
+# Load my preferred bwa module.  It's best to keep it loaded after the script
+# exits.
+case `hostname` in
+    attila-ThinkPad) : ;;
+    *) : module load ${MODULE_BWA:-bwa/0.7.15} ;;
+esac
+
+# process options
+while getopts ":B:t:U" opt; do
+    case $opt in
+        B) BAM=$OPTARG;; # BAM output
+        t) t="-t $OPTARG";; # number of threads
+        U) U="-U";; # unpaired reads
+    esac
+done
+shift $(($OPTIND - 1))
+
+# invoke bwa
+bwa mem $t $U $BWA_INDEX $1 $2 |
+# convert SAM to BAM
+samtools view -b > $BAM

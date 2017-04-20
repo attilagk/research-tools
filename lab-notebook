@@ -8,10 +8,13 @@ case $1 in
             # otherwise start server and open with browser
             echo "${0}: Starting server..."
             cd ~/lab-notebook
-            bundle exec jekyll serve --detach
+            bundle exec jekyll serve --detach --watch
             xdg-open http://127.0.0.1:4000/~attila/
         } ;;
     off|stop|down) pkill -f 'jekyll serve' ;;
+    build) { cd ~/lab-notebook
+            bundle exec jekyll build --incremental
+    };;
     -h|--help) cat <<EOF
 
 Get server PID (none unless running):
@@ -22,6 +25,9 @@ $(basename $0) on|start|up
 
 Stop server:
 $(basename $0) off|stop|down
+
+Build site:
+$(basename $0) build
 
 Display this help message:
 $(basename $0) -h|--help
