@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# default options
+project=acc_chessa01c 
+jobname=attila
+walltime=00:01
+queue=premium
+minproc=1
+stdout=$BSUB_STDOUT
+stderr=$BSUB_STDERR
+memory=2048
+resource=select[type==any]
+host=manda
+
+# custom options
+while getopts ":P:J:W:q:n:o:e:M:R:m:" opt
+do
+    case $opt in
+        P ) project=$OPTARG;;
+        J ) jobname=$OPTARG;;
+        W ) walltime=$OPTARG;;
+        q ) queue=$OPTARG;;
+        n ) minproc=$OPTARG;;
+        o ) stdout=$OPTARG;;
+        e ) stderr=$OPTARG;;
+        M ) memory=$OPTARG;;
+        R ) resource=$OPTARG;;
+        m ) host=$OPTARG;;
+    esac
+done
+
+shift $(($OPTIND - 1))
+
+bsub \
+ -P $project \
+ -J $jobname \
+ -W $walltime \
+ -q $queue \
+ -n $minproc \
+ -o $stdout \
+ -e $stderr \
+ -M $memory \
+ -R $resource \
+ -m $host \
+$@
