@@ -1,5 +1,5 @@
 #!/bin/bash
-# fastq-stats: basic statistics on a fastq file
+# basic statistics on a fastq file
 
 usage=$(cat <<EOF
 usage:
