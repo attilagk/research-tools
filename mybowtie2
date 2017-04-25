@@ -1,9 +1,11 @@
 #!/bin/bash
-BOWTIE2_INDEX=${BOWTIE2_INDEX:-/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/bowtie2/Homo_sapiens.GRCh37.75.dna.primary_assembly}
 
-# Load my preferred bwa module.  It's best to keep it loaded after the script
+# Load my preferred bowtie2 module.  It's best to keep it loaded after the script
 # exits.
-module load ${MODULE_BOWTIE2:-bowtie2/2.2.8}
+case `hostname` in
+    attila-ThinkPad) : ;;
+    *) : module load ${MODULE_BOWTIE2:-bowtie2/2.2.8} ;;
+esac
 
 # process options
 while getopts ":S:p:" opt; do

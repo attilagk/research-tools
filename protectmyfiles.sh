@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Protects all files and directories that reside in the directory of the
 # script and that are owned by the user.
@@ -11,7 +11,14 @@ errormsg="usage: ./$(basename $0) on|off"
 # refuse to run from the default directory
 defaultdir=$HOME/bin 
 msg="`basename $0`: I must reside in a directory different from ${defaultdir}; copy or link me to the target directory"
-test $mydir = $defaultdir && { echo $msg >&2; exit 1; }
+
+# ensure we aren't in my own or the user's $HOME/bin directory
+test $PWD = $defaultdir -o $PWD = ~gulyaa01/bin && { echo $msg >&2; exit 1; }
+# ensure the script isn't run from not the $HOME/bin directory
+case $mydir in
+    $defaultdir|~gulyaa01/bin) echo $msg >&2; exit 1;; 
+    *) echo no error;;
+esac
 
 # ensure there is exactly 1 positional argument
 if [ $# != 1 ]
