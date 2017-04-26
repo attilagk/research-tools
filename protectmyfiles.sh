@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Protects all files and directories that reside in the directory of the
 # script and that are owned by the user.
