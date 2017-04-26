@@ -11,8 +11,8 @@ case `hostname` in
     minerva*)
     echo "I am $USER on `hostname`"
     # revert the annoying hack meant to support new ssl despite Minerva's old linux kernel
-    #module unload openssl
-    #module load R git
+    module unload openssl
+    module load R git
     PATH="$PATH:/hpc/users/$USER/chess01c/local/bin:/hpc/users/$USER/chess01c/opt/bin"
     export BWA_INDEX=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/bwa/Homo_sapiens.GRCh37.75.dna.primary_assembly
     export BOWTIE2_INDEX=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/bowtie2/Homo_sapiens.GRCh37.75.dna.primary_assembly
