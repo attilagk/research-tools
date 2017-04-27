@@ -3,8 +3,11 @@
 # Load my preferred bwa module.  It's best to keep it loaded after the script
 # exits.
 case `hostname` in
-    attila-ThinkPad) : ;;
-    *) : module load ${MODULE_BWA:-bwa/0.7.15} ;;
+    minerva*)
+        module load ${MODULE_BWA:-bwa/0.7.15}
+        module load ${MODULE_SAMTOOLS:-samtools/1.4}
+        ;;
+    *) : ;;
 esac
 
 # process options
@@ -20,4 +23,4 @@ shift $(($OPTIND - 1))
 # invoke bwa
 bwa mem $t $U $BWA_INDEX $1 $2 |
 # convert SAM to BAM
-samtools view -b > $BAM
+samtools view -hb - > $BAM
