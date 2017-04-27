@@ -8,13 +8,13 @@ case `hostname` in
 esac
 
 # process options
-while getopts ":S:p:" opt; do
+while getopts ":B:t:" opt; do
     case $opt in
-        S) SAM=$OPTARG;; # SAM output
-        p) p="-p $OPTARG";; # number of threads
+        B) BAM=$OPTARG;; # BAM output
+        t) t="-p $OPTARG";; # number of threads
     esac
 done
 shift $(($OPTIND - 1))
 
 # invoke bowtie2
-bowtie2 $p -x $BOWTIE2_INDEX -1 $1 -2 $2 -S $SAM
+bowtie2 $t -x $BOWTIE2_INDEX -1 $1 -2 $2 -S $BAM
