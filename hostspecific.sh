@@ -6,7 +6,7 @@ case `hostname` in
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
         export BWA_INDEX=$HOME/data/GRCh37/dna/bwa/Homo_sapiens.GRCh37.75.dna.primary_assembly
-        export BOWTIE2_INDEX=$HOME/GRCh37/dna/bowtie2/Homo_sapiens.GRCh37.75.dna.primary_assembly
+        export BOWTIE2_INDEX=$HOME/data/GRCh37/dna/bowtie2/Homo_sapiens.GRCh37.75.dna.primary_assembly
         ;;
     minerva*)
         PATH="$PATH:/hpc/users/$USER/chess01c/local/bin:/hpc/users/$USER/chess01c/opt/bin"

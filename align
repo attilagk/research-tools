@@ -12,11 +12,12 @@ case `hostname` in
 esac
 
 # process options
-while getopts ":B:t:U" opt; do
+while getopts ":B:t:Ur:" opt; do
     case $opt in
         B) BAM=$OPTARG;; # BAM output
         t) nthreads="$OPTARG";; # number of threads
         U) U="-U";; # unpaired reads
+        r) rg="$OPTARG";; # read group string
     esac
 done
 shift $(($OPTIND - 1))
@@ -33,8 +34,16 @@ case $ALIGNER in
     *) alncmd="bwa mem -t $nthreads $U $BWA_INDEX $@" ;;
 esac
 
-echo $alncmd; exit 0
+if test -z $rg; then
+    rgcmd=cat
+else
+    rgcmd="samtools addreplacerg -r $rg"
+fi
 
+# align
 $alncmd |
 # convert SAM to BAM
-samtools view -hb - > $BAM
+samtools view -hb -@ $nthreads - |
+$rgcmd - |
+samtools sort -@ $nthreads -o $BAM -
+samtools index -b $BAM
