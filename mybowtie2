@@ -3,18 +3,21 @@
 # Load my preferred bowtie2 module.  It's best to keep it loaded after the script
 # exits.
 case `hostname` in
-    attila-ThinkPad) : ;;
-    *) : module load ${MODULE_BOWTIE2:-bowtie2/2.2.8} ;;
+    minerva*)
+        module load ${MODULE_BOWTIE2:-bowtie2/2.2.8}
+        module load ${MODULE_SAMTOOLS:-samtools/1.4}
+        ;;
+    *) : ;;
 esac
 
 # process options
-while getopts ":S:p:" opt; do
+while getopts ":B:p:" opt; do
     case $opt in
-        S) SAM=$OPTARG;; # SAM output
+        B) BAM=$OPTARG;; # BAM output
         p) p="-p $OPTARG";; # number of threads
     esac
 done
 shift $(($OPTIND - 1))
 
 # invoke bowtie2
-bowtie2 $p -x $BOWTIE2_INDEX -1 $1 -2 $2 -S $SAM
+bowtie2 $p -x $BOWTIE2_INDEX -1 $1 -2 $2 #-S $SAM

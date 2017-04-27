@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# load modules when running on minerva
+case `hostname` in
+    minerva*)
+        case $ALIGNER in
+            bowtie2) module load ${MODULE_BOWTIE2:-bowtie2} ;;
+            *) module load ${MODULE_BWA:-bwa} ;;
+        esac
+        module load ${MODULE_SAMTOOLS:-samtools}
+        ;;
+esac
+
+# process options
+while getopts ":B:t:U" opt; do
+    case $opt in
+        B) BAM=$OPTARG;; # BAM output
+        t) nthreads="$OPTARG";; # number of threads
+        U) U="-U";; # unpaired reads
+    esac
+done
+shift $(($OPTIND - 1))
+
+# aligner command
+case $ALIGNER in
+    bowtie2)
+        if test -z $U; then
+            arg="-1 $1 -2 $2" # paired reads
+        else
+            arg="$@"
+        fi
+        alncmd="bowtie2 -p $nthreads $U -x $BOWTIE2_INDEX $arg" ;;
+    *) alncmd="bwa mem -t $nthreads $U $BWA_INDEX $@" ;;
+esac
+
+echo $alncmd; exit 0
+
+$alncmd |
+# convert SAM to BAM
+samtools view -hb - > $BAM
