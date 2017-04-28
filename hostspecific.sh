@@ -11,8 +11,9 @@ case `hostname` in
     minerva*)
         PATH="$PATH:/hpc/users/$USER/chess01c/local/bin:/hpc/users/$USER/chess01c/opt/bin"
         # commands to execute
-        module load R git vim/8.0
-        module unload openssl # no effect; revert the annoying hack meant to support new ssl despite Minerva's old linux kernel
+        module load git vim/8.0
+        #module load R
+        #module unload openssl # revert the annoying hack meant to support new ssl despite Minerva's old linux kernel
         # special variables, mostly for bioinformatics
         export BWA_INDEX=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/bwa/Homo_sapiens.GRCh37.75.dna.primary_assembly
         export MODULE_BWA=bwa
