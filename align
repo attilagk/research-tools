@@ -1,5 +1,8 @@
 #!/bin/bash
 
+usage="paired reads:\t`basename $0` [-B out.bam] [-t nthreads] [-r
+ID:readgroup] reads_1.fq reads_2.fq\nunpaired reads:\t`basename $0` [-B out.bam] [-t nthreads] [-r ID:readgroup] -U reads_1.fq ... reads_n.fq"
+
 # load modules when running on minerva
 case `hostname` in
     minerva*)
@@ -12,15 +15,18 @@ case `hostname` in
 esac
 
 # process options
-while getopts ":B:t:Ur:" opt; do
+while getopts ":B:t:Ur:h" opt; do
     case $opt in
         B) BAM=$OPTARG;; # BAM output
         t) nthreads="$OPTARG";; # number of threads
         U) U="-U";; # unpaired reads
         r) rg="$OPTARG";; # read group string
+        h) echo -e $usage 2>&1; exit ;;
     esac
 done
 shift $(($OPTIND - 1))
+BAM=${BAM:-`basename $1`.bam}
+nthreads=${nthreads:-1}
 
 # aligner command
 case $ALIGNER in
