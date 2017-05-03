@@ -5,6 +5,8 @@ case `hostname` in
         # special variables, mostly for bioinformatics
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
+        export REFSEQ=$HOME/data/GRCh37/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
+        export REFSEQ_DICT=$HOME/data/GRCh37/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.dict
         export BWA_INDEX=$HOME/data/GRCh37/dna/bwa/Homo_sapiens.GRCh37.75.dna.primary_assembly
         export BOWTIE2_INDEX=$HOME/data/GRCh37/dna/bowtie2/Homo_sapiens.GRCh37.75.dna.primary_assembly
         ;;
@@ -15,6 +17,8 @@ case `hostname` in
         #module load R
         #module unload openssl # revert the annoying hack meant to support new ssl despite Minerva's old linux kernel
         # special variables, mostly for bioinformatics
+        export REFSEQ=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa
+        export REFSEQ_DICT=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.dict
         export BWA_INDEX=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna/bwa/Homo_sapiens.GRCh37.75.dna.primary_assembly
         export MODULE_BWA=bwa
         #export MODULE_BWA=bwa/0.7.15

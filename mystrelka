@@ -1,21 +1,28 @@
 #!/usr/bin/env bash
 
+usage="usage: `basename $0` normal.bam tumor.bam [outdir [reference.fa]]"
+
+# ensure number of arguments is 2, 3 or 4
+if test $# -lt 2 -o $# -gt 4; then
+    echo $usage >&2; exit 1
+fi
+
 installdir=/usr/local
 config_script=$installdir/bin/configureStrelkaWorkflow.pl
-demo_config_file=$installdir/bin/strelka-demo/strelka_demo_config.ini
-#demo_config_file=$installdir/etc/strelka_config_bwa_default.ini
-analysis_dir=strelka-out
+#config_file=$installdir/bin/strelka-demo/strelka_demo_config.ini
+config_file=$installdir/etc/strelka_config_bwa_default.ini
 
 bam1=$1
 bam2=$2
-ref=${3:-~/data/GRCh37/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa}
+analysis_dir=${3:strelka-out}
+ref=${4:-$REFSEQ}
 
 
 cmd="$config_script \
 --normal=$bam1 \
 --tumor=$bam2 \
 --ref=$ref \
---config=$demo_config_file \
+--config=$config_file \
 --output-dir=$analysis_dir"
 
 $cmd
