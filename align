@@ -46,10 +46,13 @@ else
     rgcmd="samtools addreplacerg -r $rg"
 fi
 
+# samtools' threading option -@ means ADDITIONAL threads, which is 1 less all threads
+samthreads=$(($nthreads - 1))
+
 # align
 $alncmd |
 # convert SAM to BAM
-samtools view -hb -@ $nthreads - |
+samtools view -hb -@ $samthreads - |
 $rgcmd - |
-samtools sort -@ $nthreads -o $BAM -
+samtools sort -@ $samthreads -o $BAM -
 samtools index -b $BAM
