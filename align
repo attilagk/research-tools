@@ -20,7 +20,7 @@ while getopts ":B:t:Ur:h" opt; do
         B) BAM=$OPTARG;; # BAM output
         t) nthreads="$OPTARG";; # number of threads
         U) U="-U";; # unpaired reads
-        r) rg="$OPTARG";; # read group string
+        r) rg="$rg -r $OPTARG";; # read group string
         h) echo -e $usage 2>&1; exit ;;
     esac
 done
@@ -40,10 +40,10 @@ case $ALIGNER in
     *) alncmd="bwa mem -t $nthreads $U $BWA_INDEX $@" ;;
 esac
 
-if test -z $rg; then
+if test -z "$rg"; then
     rgcmd=cat
 else
-    rgcmd="samtools addreplacerg -r $rg"
+    rgcmd="samtools addreplacerg $rg"
 fi
 
 # samtools' threading option -@ means ADDITIONAL threads, which is 1 less all threads

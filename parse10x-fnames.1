@@ -1,5 +1,29 @@
 #!/usr/bin/env bash
 
-fname=$1
-<<<$fname sed 's/\([[:alnum:]]\+\)_\([[:alnum:]]\+\)_\([[:alnum:]]\+\)-\([[:alnum:]]\+\)_\([[:alnum:]]\+\)_\(L[[:digit:]]\)\(\.bam\|_[12]\.fq\.gz\)/\1 \2 \3 \4 \5 \6 \7/'
+# Output:
+# 1: individual
+# 2: tissue/cell type
+# 3: library
+# 4: index
+# 5: flowcell
+# 6: lane
+# 7: filetype (bam|fw_fastq|rv_fastq)
 
+fname=`basename $1`
+set $(<<<$fname sed 's/\([[:alnum:]]\+\)_\([[:alnum:]]\+\)_\([[:alnum:]]\+\)-\([[:alnum:]]\+\)_\([[:alnum:]]\+\)_\(L[[:digit:]]\)\(\.bam\|_[12]\.fq\.gz\)/\1 \2 \3 \4 \5 \6 \7/')
+
+#echo $@
+
+indiv=$1
+tissue=$2
+LB=$3
+index=$4
+flowcell=$5
+lane=$6
+
+# read group tags
+SM=${indiv}_$tissue
+PU=${flowcell}_$lane
+ID=${SM}_${LB}_$PU
+
+echo -r "ID:$ID" -r "LB:$LB" -r "SM:$SM" -r "PU:$PU"
