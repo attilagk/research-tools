@@ -1,5 +1,14 @@
 #! /usr/bin/env bash
 
+# Fetch, check, and prepare for bwa and bowtie2 the human genome's GRCh37 or
+# GRCh38 assembly.  The current (latest) release is fetched from ENSEMBL's public ftp
+# site; downloaded fasta files are checked using checksums; only fasta files
+# for single chromosomes are fetched; these are concatenated into a single
+# output fasta in karyotypic order (1,...,22, X, Y, MT); the output fasta is
+# indexed and a dictionary is created both with samtools and picard tools,
+# such that the default .dict file is symlinked to the samtools dictionary;
+# finally, an aligner index is built both for bwa and bowtie2.
+
 usage="usage: `basename $0` outdir [grch37|grch38]"
 if test $# -eq 0; then
     echo $usage >&2; exit 1
@@ -24,6 +33,7 @@ fetch () {
 outdir=$1
 cd $outdir || exit 1
 assembly=$2
+echo $0 $@ > README_generator_cmd
 baseurl=ftp://ftp.ensembl.org/pub
 case $assembly in
     *38)
@@ -55,13 +65,16 @@ if test ! -e $outfa; then
         test -e $f || fetch $f || { echo $errormsg >&2; exit 1; }
         zcat $f && rm $f
     done > $outfa
+    rm CHECKSUMS
 fi
 
+# create index
 faix="$outfa.fai"
 test -e $faix || samtools faidx $outfa
 
 # dictionary file; make one by samtools and another one by picard tools
-fadict="`basename $outfa .fa`.dict"
+bn_outfa="`basename $outfa .fa`"
+fadict="$bn_outfa.dict"
 samtools_dict="`basename $outfa .fa`-samtools.dict"
 picard_dict="`basename $outfa .fa`-picard.dict"
 if test ! -e $fadict; then
@@ -70,4 +83,18 @@ if test ! -e $fadict; then
         GENOME_ASSEMBLY=$assembly SPECIES="Homo sapiens" 
     # create a symlink to one of the two dictionaries
     ln -s $samtools_dict $fadict
+fi
+
+# bwa index
+if test ! -d bwa; then
+    which bwa > /dev/null && mkdir bwa && cd bwa
+    bwa index -p $bn_outfa ../$outfa
+    cd ..
+fi
+
+# bowtie2 index
+if test ! -d bowtie2; then
+    which bowtie2 > /dev/null && mkdir bowtie2 && cd bowtie2
+    bowtie2-build --threads 1 ../$outfa $bn_outfa
+    cd ..
 fi
