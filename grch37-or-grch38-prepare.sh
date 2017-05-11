@@ -65,6 +65,9 @@ if test ! -e $outfa; then
         test -e $f || fetch $f || { echo $errormsg >&2; exit 1; }
         zcat $f && rm $f
     done > $outfa
+    f="Homo_sapiens."$assembly".dna.nonchromosomal.fa.gz"
+    test -e $f || fetch $f || { echo $errormsg >&2; exit 1; }
+    zcat $f >> $outfa && rm $f
     rm CHECKSUMS
 fi
 
