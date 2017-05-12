@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+usage="usage: `basename $0` normal.bam tumor.bam outdir [reference.fa]"
+
+# ensure number of arguments is 2, 3 or 4
+if test $# -lt 3 -o $# -gt 4; then
+    echo $usage >&2; exit 1
+fi
+
+bam1=$1
+bam2=$2
+outdir=$3
+ref=${4:-$REFSEQ}
+
+mkdir $outdir
+java -jar $GATK -T MuTect2 -R $REFSEQ \
+    -I:normal $bam1 -I:tumor $bam2 -o "$outdir/out.vcf" \
+    2> "$outdir/out.stderr" > "$outdir/out.stdout"

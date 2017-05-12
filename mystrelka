@@ -12,8 +12,9 @@ config_script=$installdir/bin/configureStrelkaWorkflow.pl
 #config_file=$installdir/bin/strelka-demo/strelka_demo_config.ini
 config_file=$installdir/etc/strelka_config_bwa_default.ini
 
-bam1=$1
-bam2=$2
+# strelka requires explicit specification of dirnames
+bam1="`dirname $1`/`basename $1`"
+bam2="`dirname $2`/`basename $2`"
 analysis_dir=${3:strelka-out}
 ref=${4:-$REFSEQ}
 
