@@ -1,1 +1,37 @@
-/home/attila/backup/sync-bernie
+#! /bin/sh
+
+# Synchronize selected files and directories with those in Bernie
+
+NAME=$(basename $0)
+LOG=/home/attila/backup/${NAME}.log
+
+for F in ~/* ~/.bashrc ~/.inputrc ~/.vim ~/.vimrc
+do
+    G=$(basename $F)
+    if grep -q $G ~/backup/sync-bernie.exclude
+    then :
+    else
+        if [ -d ~/$G ]
+        then
+            # sync directory and delete extraneous files from destination
+            rsync -az --delete --log-file=$LOG ~/$G/ attila@bernie:~/$G
+        else
+            # sync regular file
+            rsync -az --log-file=$LOG ~/$G attila@bernie:~/
+        fi
+    fi
+done
+
+# get Mehaa's Excel sheet on DNA libraries
+dnalibxls=BSM_Project_Chess.xlsb
+dnalibdir="$HOME/projects/bsm/data/dnalib"
+rsync aqua:~/Desktop/$dnalibxls $dnalibdir
+soffice --convert-to csv --outdir $dnalibdir $dnalibdir/$dnalibxls
+
+## old script: doesn't delete extraneous files
+#rsync -anz \
+#    --include-from=/home/attila/backup/${NAME}.include \
+#    --exclude-from=/home/attila/backup/${NAME}.exclude \
+#    --log-file=/home/attila/backup/${NAME}.log \
+#    ~/ \
+#    attila@bernie:~/
