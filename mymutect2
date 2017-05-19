@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
-usage="usage: `basename $0` normal.bam tumor.bam outdir [reference.fa]"
+usage="usage: `basename $0` [-@ nthreads] normal.bam tumor.bam outdir [reference.fa]"
+
+# number of threads
+if getopts ":@:" myopts; then
+    nthreads=$OPTARG
+fi
+shift $(($OPTIND - 1))
+nthreads=${nthreads:-6} # 6 threads by default
 
 # ensure number of arguments is 2, 3 or 4
 if test $# -lt 3 -o $# -gt 4; then
@@ -12,7 +19,9 @@ bam2=$2
 outdir=$3
 ref=${4:-$REFSEQ}
 
+#echo $@; exit
+
 mkdir $outdir
-java -jar $GATK -T MuTect2 -R $REFSEQ \
+java -jar $GATK -T MuTect2 -R $REFSEQ -nct $nthreads \
     -I:normal $bam1 -I:tumor $bam2 -o "$outdir/out.vcf" \
     2> "$outdir/out.stderr" > "$outdir/out.stdout"
