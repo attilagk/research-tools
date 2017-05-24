@@ -7,7 +7,7 @@ if getopts ":@:" myopts; then
     nthreads=$OPTARG
 fi
 shift $(($OPTIND - 1))
-nthreads=${nthreads:-6} # 6 threads by default
+nthreads=${nthreads:-1} # 1 threads by default
 
 # ensure number of arguments is 2, 3 or 4
 if test $# -lt 3 -o $# -gt 4; then
