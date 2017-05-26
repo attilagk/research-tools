@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+# View input.vcf as a spreadsheet using libre office calc
+
+usage="usage: `basename $0` input.vcf"
+
+if test $# -ne 1; then
+    echo $usage 2>&1; exit 1
+fi
+
+invcf=$1
+outvcf=$(mktemp /tmp/$(basename $invcf).XXXXXX)
+ls -l $outvcf
+sed -n '/^#CHROM/,$ p' $invcf > $outvcf
+{ soffice --calc $outvcf; rm $outvcf; } 2>/dev/null &
