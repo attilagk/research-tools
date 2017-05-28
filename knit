@@ -34,7 +34,7 @@ post2jekyll () {
 # make output directories if necessary
 test -d $postdir || mkdir -p $postdir
 test -d $absRfigs || mkdir -p $absRfigs
-tmpdir=`mktemp -dp $indir`
+tmpdir=`mktemp -d`
 cd $tmpdir
 #test -e figure && rm -rf figure
 
