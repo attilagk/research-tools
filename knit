@@ -60,7 +60,7 @@ test -d $projectdir || { echo "`basename $0`: could not locate directory $projec
 
 # function that integrates newly generated .md and figures into jekyll site
 post2jekyll () {
-    md=$1 jekylldir=$2 relprojectdir=$3 Rmd=$4
+    md=$1 Rmd=$2 jekylldir=$3 relprojectdir=$4
 
     # set up paths and variables, ensure that dirs exist
     absprojectdir=$jekylldir/$relprojectdir
@@ -100,7 +100,7 @@ post2jekyll () {
 }
 
 # knit the .Rmd to .md
-if Rscript $knitrscript $Rmd && post2jekyll $md $jekylldir $relprojectdir $Rmd; then
+if Rscript $knitrscript $Rmd && post2jekyll $md $Rmd $jekylldir $relprojectdir; then
     cd $jekylldir && bundle exec jekyll build --incremental
 else
     echo "`basename $0`: error; check $indir for intermediate files" 1>&2
