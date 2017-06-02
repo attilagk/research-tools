@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# options
+while getopts ":b" myopt; do
+    case $myopt in
+        b) backup=T;;
+        *) backup=F;;
+    esac
+done
+shift $(( $OPTIND - 1))
+
+#if test 3 -ne 3; then
 if test $# -ne 3; then
     cat <<EOF
 Usage:
@@ -73,7 +83,10 @@ post2jekyll () {
     # absolute path to R-related or R-generated files and directories (e.g. .Rmd, 'figure')
     absRdir=$absprojectdir/R/$postname
     test -d $absRdir || mkdir -p $absRdir
-    cp $Rmd -t $absRdir
+    # duplicate Rmd only in backup mode
+    case $backup in
+        B) cp $Rmd -t $absRdir;;
+    esac
 
     # subdirectory for figures with $absRdir
     relRfigdir=$relRdir/figure
@@ -82,7 +95,10 @@ post2jekyll () {
     test -d $absRfigdir && rm -rf $absRfigdir
     if test -d figure; then
         mv figure $absRfigdir
-        ln -s $absRfigdir figure
+        # only create symlink in backup mode
+        case $backup in
+            B) ln -s $absRfigdir figure;;
+        esac
     fi
 
     # prepare and give the .md post to jekyll
