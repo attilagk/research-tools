@@ -88,7 +88,7 @@ post2jekyll () {
     test -d $absRdir || mkdir -p $absRdir
     # duplicate Rmd only in backup mode
     case $backup in
-        B) cp $Rmd -t $absRdir;;
+        T) cp $Rmd -t $absRdir;;
     esac
 
     # subdirectory for figures with $absRdir
@@ -100,7 +100,7 @@ post2jekyll () {
         mv figure $absRfigdir
         # only create symlink in backup mode
         case $backup in
-            B) ln -s $absRfigdir figure;;
+            T) ln -s $absRfigdir figure;;
         esac
     fi
 
