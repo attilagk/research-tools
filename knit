@@ -6,8 +6,8 @@
 usage="usage: `basename $0` input.Rmd"
 
 if test $# -ne 1; then
-    echo yes
-    exit
+    echo $usage
+    exit 1
 fi
 
 rmdpath=`realpath $1`
