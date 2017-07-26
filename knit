@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
-# Wrapper of knit-basic for knitting some input.Rmd in projectdir and
-# then incorporating it into the lab-notebook.
+# Wrapper of knit-basic for knitting some input.Rmd in projectdir
+# and then incorporating it into the lab-notebook.
 
 usage="usage: `basename $0` input.Rmd"
 
