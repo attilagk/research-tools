@@ -1,0 +1,32 @@
+#! /usr/bin/env node
+var rlv = require('/usr/lib/node_modules/readline-vim'),
+      repl = require('repl');
+
+var r = repl.start({
+  prompt: "vim repl > ",
+  input: process.stdin,
+  output: process.stdout
+});
+
+// pass the readline component of the repl in order to add vim bindings to it
+var vim = rlv(r.rli)
+  , map = vim.map;
+
+// Add mappings
+
+// [insert mode] allow switching to normal mode by typing 'jk' quickly 
+map.insert('jk', 'esc');
+
+// [insert mode] go backward in history via 'ctrl-k' 
+map.insert('ctrl-k', 'ctrl-p');
+
+// [insert mode] go backward in history via 'ctrl-k' 
+map.insert('ctrl-space', 'ctrl-n');
+
+// [normal mode] go backward in history via space bar
+map.normal('space', 'k');
+
+// [normal mode] go forward in history via space bar when ctrl is pressed 
+map.normal('ctrl-space', 'j');
+
+r.displayPrompt();
