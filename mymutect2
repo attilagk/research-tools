@@ -22,6 +22,6 @@ ref=${4:-$REFSEQ}
 #echo $@; exit
 
 mkdir $outdir
-java -jar $GATK -T MuTect2 -R $REFSEQ -nct $nthreads \
+java -jar $GATK -T MuTect2 -R $ref -nct $nthreads \
     -I:normal $bam1 -I:tumor $bam2 -o "$outdir/out.vcf" \
     2> "$outdir/out.stderr" > "$outdir/out.stdout"
