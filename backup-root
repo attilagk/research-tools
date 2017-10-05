@@ -5,7 +5,7 @@
 # source and target directories of backup
 NAME=$(basename $0)
 SOURCEDIR="/"
-TARGETDIR="/media/attila/seagate-attila/$NAME"
+TARGETDIR="/media/attila/backup/$NAME"
 
 ## clean up old backups
 #PASSPHRASE=chesslab13 duplicity remove-older-than 2Y \
