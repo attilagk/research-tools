@@ -5,7 +5,7 @@
 # source and target directories of backup
 NAME=$(basename $0)
 SOURCEDIR="/home/attila"
-TARGETDIR="/media/attila/seagate-attila/$NAME"
+TARGETDIR="/media/attila/backup/$NAME"
 
 # list of installed Debian/Ubuntu packages
 dpkg -l > ~attila/backup/dpkg.list
