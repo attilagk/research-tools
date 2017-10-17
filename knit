@@ -11,12 +11,20 @@ if test $# -ne 1; then
 fi
 
 rmdpath=`realpath $1`
+
+# lab projects
 projectdir=$HOME/projects
 notebookdir=$HOME/lab-notebook
 
+# R you experienced?
+ruexperienced=$HOME/websites/R-you-experienced
+
+# check which project the Rmd file belongs to and act accordingly
 if grep "$projectdir" <<< $rmdpath >/dev/null; then
     project=$(sed "s:$projectdir/\([^/]\+\)/.*$:\1:" <<< $rmdpath)
     knit-basic -b $1 $notebookdir projects/$project
+elif grep "$ruexperienced" <<< $rmdpath >/dev/null; then
+    knit-basic $1 $ruexperienced -
 else
     echo "error: use knit-basic instead of `basename $0`"
     exit 1
