@@ -8,6 +8,8 @@ case `hostname` in
         export REFSEQ_DICT=$HOME/data/GRCh37/dna/hs37d5.dict
         export BWA_INDEX=$HOME/data/GRCh37/dna/bwa/hs37d5
         export BOWTIE2_INDEX=$HOME/data/GRCh37/dna/bowtie2/hs37d5
+        export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+        alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
         ;;
 #    attila-ThinkPad)
 #        # commands to execute
