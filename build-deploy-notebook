@@ -2,12 +2,15 @@
 
 # Usage: build-deploy-notebook [servername]
 
+# For setting up apache webserver on MacOS X see
+# https://discussions.apple.com/docs/DOC-3083
+
 # set server to deploy to
 SERVER=${1:-bernie}
 
 cd ~/lab-notebook
 # build; note the second config file containing server-specific settings
-bundle exec jekyll build -c _config.yml,_config.${SERVER}.yml
+JEKYLL_ENV=production bundle exec jekyll build -c _config.yml,_config.${SERVER}.yml
 #bundle exec jekyll build --incremental -c _config.yml,_config.${SERVER}.yml
 
 # deploy to server
