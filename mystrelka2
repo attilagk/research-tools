@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+caseBAM=$1; shift
+controlBAM=$1; shift
+refseq=$1; shift
+#refseq=${REFSEQ:-/home/attila/data/GRCh37/dna/hs37d5.fa}
+
+type=Somatic
+STRELKA_INSTALL_PATH=/usr/local
+configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
+
+analysisDir="./strelka2${type}"
+
+cmd="$configScript \
+--tumorBam=$caseBAM \
+--normalBam=$controlBAM \
+--referenceFasta=$refseq \
+--exome \
+--runDir=$analysisDir" \
+
+eval $cmd
