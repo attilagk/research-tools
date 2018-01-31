@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+# Convert a markdown document to HTML.
+# The input markdown is assumed to have been generated from an R markdown
+# using the knitr R package and to be formatted for the kramdown renderer.
+
+usage="usage: `basename $0` input.md"
+
+inmd=$1
+if test $# -ne 1; then
+    echo $usage
+    exit 1
+fi
+bn="`basename $inmd .md`"
+outmd=`tempfile`
+outhtml="$bn.html"
+
+cp $inmd $outmd
+# append mathjax script to the end
+echo '<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>' >> $outmd
+# the coderay syntax highlighter requires ~ (tilde) instead of ` (backquote)
+sed -i 's/^```/\~\~\~/' $outmd
+# render with kramdown using coderay and clean up
+kramdown --enable-coderay --syntax-highlighter coderay $outmd > $outhtml &&
+    rm $outmd
