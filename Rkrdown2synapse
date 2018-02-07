@@ -1,0 +1,17 @@
+#! /usr/bin/env bash
+
+# Input is a kramdown flavored R markdown document
+# Output is a synapse flavored R markdown document
+
+usage="usage: `basename $0` input.Rmd"
+
+inRmd=$1
+if test $# -ne 1; then
+    echo $usage
+    exit 1
+fi
+bn="`basename $inRmd .Rmd`"
+outRmd=$bn.syn.Rmd
+
+# inline equations
+sed 's/\(\$\$\)\([^$]\+\)\1/\1\\(\2\\)\1/g' $inRmd > $outRmd
