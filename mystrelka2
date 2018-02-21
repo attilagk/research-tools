@@ -1,21 +1,33 @@
 #!/usr/bin/env bash
 
-caseBAM=$1; shift
-controlBAM=$1; shift
-refseq=$1; shift
-#refseq=${REFSEQ:-/home/attila/data/GRCh37/dna/hs37d5.fa}
+while getopts 'p:r:1:2:o:' myopt; do
+    case $myopt in
+        p) numproc=$OPTARG;;
+        r) refseq=$OPTARG;;
+        1) caseBAM=$OPTARG;;
+        2) controlBAM=$OPTARG;;
+        o) outputDir=$OPTARG;;
+    esac
+done
+
+jobOpt=""
+if test -v numproc; then
+    jobOpt="-j $numproc"
+fi
 
 type=Somatic
 STRELKA_INSTALL_PATH=/usr/local
 configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
 
-analysisDir="./strelka2${type}"
+analysisDir="${outputDir:-.}/strelka2${type}"
 
-cmd="$configScript \
+configcmd="$configScript \
 --tumorBam=$caseBAM \
 --normalBam=$controlBAM \
 --referenceFasta=$refseq \
 --exome \
---runDir=$analysisDir" \
+--runDir=$analysisDir"
 
-eval $cmd
+eval $configcmd
+
+$analysisDir/runWorkflow.py -m local $jobOpt
