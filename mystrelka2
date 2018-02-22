@@ -1,21 +1,31 @@
 #!/usr/bin/env bash
 
-while getopts 'p:r:1:2:o:' myopt; do
+usage="usage: `basename $0` -t Somatic|Germline -p numproc -r refseq.fa -1 case.bam -2 control.bam -o outputDir [-x]"
+
+# print usage without any arguments
+if test $# -eq 0; then
+    echo $usage >&2; exit 1
+fi
+
+# options
+type=Somatic
+exomeOpt=''
+while getopts 't:p:r:1:2:o:x' myopt; do
     case $myopt in
+        t) type=$OPTARG;;
         p) numproc=$OPTARG;;
         r) refseq=$OPTARG;;
         1) caseBAM=$OPTARG;;
         2) controlBAM=$OPTARG;;
         o) outputDir=$OPTARG;;
+        x) exomeOpt='--exome';;
     esac
 done
-
 jobOpt=""
 if test -v numproc; then
     jobOpt="-j $numproc"
 fi
 
-type=Somatic
 STRELKA_INSTALL_PATH=/usr/local
 configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
 
@@ -25,7 +35,7 @@ configcmd="$configScript \
 --tumorBam=$caseBAM \
 --normalBam=$controlBAM \
 --referenceFasta=$refseq \
---exome \
+$exomeOpt \
 --runDir=$analysisDir"
 
 eval $configcmd
