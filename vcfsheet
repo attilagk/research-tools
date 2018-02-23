@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# View input.vcf as a spreadsheet using libre office calc
+# View possibly gzipped input.vcf as a spreadsheet using libre office calc
 
 usage="usage: `basename $0` input.vcf"
 
@@ -10,6 +10,14 @@ fi
 
 invcf=$1
 outvcf=$(mktemp /tmp/$(basename $invcf).XXXXXX)
+
+# possibly gzipped VCFs
+if gzip --test $invcf; then
+    catcmd=zcat
+else
+    catcmd=cat
+fi
+
 ls -l $outvcf
-sed -n '/^#CHROM/,$ p' $invcf > $outvcf
+$catcmd $invcf | sed -n '/^#CHROM/,$ p' > $outvcf
 { soffice --calc $outvcf; rm $outvcf; } 2>/dev/null &
