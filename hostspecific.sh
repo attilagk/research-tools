@@ -13,6 +13,7 @@ case `hostname` in
         alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
         ;;
     ada)
+        export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
         ;;
 #    attila-ThinkPad)
