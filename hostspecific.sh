@@ -9,7 +9,11 @@ case `hostname` in
         export BWA_INDEX=$HOME/data/GRCh37/dna/bwa/hs37d5
         export BOWTIE2_INDEX=$HOME/data/GRCh37/dna/bowtie2/hs37d5
         export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+        export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
         alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
+        ;;
+    ada)
+        export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
         ;;
 #    attila-ThinkPad)
 #        # commands to execute

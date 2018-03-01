@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
+export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+
+while getopts 'p:r:1:2:a:b:o:' myopt; do
+    case $myopt in
+        p) numproc=$OPTARG;;
+        r) refseq=$OPTARG;;
+        1) caseBAM=$OPTARG;;
+        2) controlBAM=$OPTARG;;
+        a) caseSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
+        o) outputDir=$OPTARG;;
+    esac
+done
+
+analysisDir=${outputDir:-.}/Tnseq
+mkdir -p $analysisDir
+
+SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic" /opt/sentieon-genomics/current/bin/sentieon driver -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
+    --tumor_sample $caseSample --normal_sample $controlSample \
+    $analysisDir/tnseq.vcf

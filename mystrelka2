@@ -32,11 +32,14 @@ configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
 analysisDir="${outputDir:-.}/strelka2${type}"
 
 configcmd="$configScript \
---tumorBam=$caseBAM \
---normalBam=$controlBAM \
 --referenceFasta=$refseq \
 $exomeOpt \
 --runDir=$analysisDir"
+
+case $type in
+    Somatic) configcmd="$configcmd --tumorBam=$caseBAM --normalBam=$controlBAM";;
+    Germline) configcmd="$configcmd --bam=$caseBAM";;
+esac
 
 eval $configcmd
 
