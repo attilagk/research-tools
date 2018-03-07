@@ -4,7 +4,7 @@ case `hostname` in
         # special variables, mostly for bioinformatics
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
-	refseq_dir="$HOME/data/GRCh37/dna"
+        refseq_dir="$HOME/data/GRCh37/dna"
         export REFSEQ=$refseq_dir/hs37d5.fa
         export REFSEQ_DICT=$refseq_dir/hs37d5.dict
         export BWA_INDEX=$refseq_dir/bwa/hs37d5
@@ -16,7 +16,7 @@ case `hostname` in
     ada)
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
-	refseq_dir=/projects/shared/GRCh37/dna
+        refseq_dir=/projects/shared/GRCh37/dna
         export REFSEQ=$refseq_dir/hs37d5.fa
         export REFSEQ_DICT=$refseq_dir/hs37d5.dict
         export BWA_INDEX=$refseq_dir/bwa/hs37d5
@@ -28,7 +28,7 @@ case `hostname` in
         #module load R
         #module unload openssl # revert the annoying hack meant to support new ssl despite Minerva's old linux kernel
         # special variables, mostly for bioinformatics
-	refseq_dir=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna
+        refseq_dir=/sc/orga/projects/chessa01c/refgenome/GRCh37/dna
         export REFSEQ=$refseq_dir/Homo_sapiens.GRCh37.dna.fa
         export REFSEQ_DICT=$refseq_dir/Homo_sapiens.GRCh37.dna.dict
         export BWA_INDEX=$refseq_dir/bwa/Homo_sapiens.GRCh37.dna
