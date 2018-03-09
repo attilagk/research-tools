@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
 
-# Output:
-# 1: individual
-# 2: tissue/cell type
-# 3: library
-# 4: index
-# 5: flowcell
-# 6: lane
-# 7: filetype (bam|fw_fastq|rv_fastq)
-
 fname=`basename $1`
-set $(<<<$fname sed 's/\([[:alnum:]]\+\)_\([[:alnum:]]\+\)_\([[:alnum:]]\+\)-\([[:alnum:]]\+\)_\([[:alnum:]]\+\)_\(L[[:digit:]]\)\(\.bam\|_[12]\.fq\.gz\)/\1 \2 \3 \4 \5 \6 \7/')
 
-#echo $@
-
-indiv=$1
-tissue=$2
-LB=$3
-index=$4
-flowcell=$5
-lane=$6
+# set positional arguments to the parsed fields of file name
+set $(<<<$fname $HOME/bin/parseX10-fnames.sed)
+#echo $@; exit 0
+sample=$1
+machine=$2
+index=$3
+flowcell=$4
+lane=$5
+fwrev=$6
 
 # read group tags
-SM=${indiv}_$tissue
-PU=${flowcell}_$lane
-ID=${SM}_${LB}_$PU
+SM=$sample
+LB=${sample}_${index}
+PU=${flowcell}_${lane}
+ID=${sample}_${index}_$PU
+CN=X10
+PL=ILLUMINA
 
-echo -r "ID:$ID" -r "LB:$LB" -r "SM:$SM" -r "PU:$PU"
+# output: read group (@RG) tags for SAM format; for specifications see
+# http://samtools.github.io/hts-specs/SAMv1.pdf
+echo -r "ID:$ID" -r "LB:$LB" -r "SM:$SM" -r "PU:$PU" -r "CN:$CN" -r "PL:$PL"
