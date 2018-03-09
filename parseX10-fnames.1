@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# parse fastq filenames by X10 sequencing and produce read group tags
+
+usage="usage: `basename $0` path/to/reads.fq.gz"
+
+if test $# -ne 1; then
+    echo $usage; exit 1
+fi
+
 fname=`basename $1`
 
 # set positional arguments to the parsed fields of file name
@@ -15,8 +23,8 @@ fwrev=$6
 # read group tags
 SM=$sample
 LB=${sample}_${index}
-PU=${flowcell}_${lane}
-ID=${sample}_${index}_$PU
+PU=${machine}_${flowcell}_${lane}
+ID=${sample}-${index}_$PU
 CN=X10
 PL=ILLUMINA
 
