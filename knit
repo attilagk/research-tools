@@ -22,6 +22,12 @@ ruexperienced=$HOME/websites/R-you-experienced
 # check which project the Rmd file belongs to and act accordingly
 if grep "$projectdir" <<< $rmdpath >/dev/null; then
     project=$(sed "s:$projectdir/\([^/]\+\)/.*$:\1:" <<< $rmdpath)
+    case $project in
+        monoallelic-brain)
+            echo "redirecting $project to open notebook"
+            notebookdir=$HOME/websites/open-notebook/$project
+            ;;
+    esac
     knit-basic -b $1 $notebookdir projects/$project
 elif grep "$ruexperienced" <<< $rmdpath >/dev/null; then
     knit-basic $1 $ruexperienced -
