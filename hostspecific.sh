@@ -20,6 +20,9 @@ case `hostname` in
         export REFSEQ=$refseq_dir/hs37d5.fa
         export REFSEQ_DICT=$refseq_dir/hs37d5.dict
         export BWA_INDEX=$refseq_dir/bwa/hs37d5
+        export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+        export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
+        alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
         ;;
     minerva*)
         PATH="$PATH:/hpc/users/$USER/chess01c/local/bin:/hpc/users/$USER/chess01c/opt/bin"
