@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+for d in /home/*; do
+    user=$(basename $d)
+    if test $user == 'lost+found'
+    then :
+    else echo $user
+    fi
+done
