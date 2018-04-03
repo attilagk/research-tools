@@ -1,9 +1,16 @@
 #! /usr/bin/env bash
 
-for d in /home/*; do
-    user=$(basename $d)
-    if test $user == 'lost+found'
-    then :
-    else echo $user
-    fi
-done
+NAME=$(basename $0)
+SOURCEDIR="/home"
+TARGETDIR="/backup/$NAME"
+
+# clean up old backups
+PASSPHRASE=chesslab13 duplicity remove-older-than 2Y \
+    file://$TARGETDIR
+
+# the main backup
+PASSPHRASE=chesslab13 duplicity \
+    --full-if-older-than 1M \
+    --log-file ~attila/backup/${NAME}.log \
+    $SOURCEDIR \
+    file://$TARGETDIR
