@@ -12,6 +12,7 @@ case `hostname` in
         export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
         export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
         alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
+        alias lofreq="/opt/lofreq_star/current/lofreq"
         ;;
     ada)
         export PICARD="/opt/picard/current/picard.jar"
@@ -23,6 +24,7 @@ case `hostname` in
         export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
         export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
         alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
+        alias lofreq="/opt/lofreq_star/current/lofreq"
         ;;
     minerva*)
         PATH="$PATH:/hpc/users/$USER/chess01c/local/bin:/hpc/users/$USER/chess01c/opt/bin"
