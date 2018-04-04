@@ -23,6 +23,8 @@ while getopts 't:p:r:1:2:o:d:' myopt; do
 done
 
 outputDir="$outputDir/lofreq$type"
+#outputDir="$outputDir/lofreq${type}-noDBSNP"
+
 # check, create, and change to output directory
 if test -d $outputDir
 then echo "$outputDir already exists; exiting"; exit 1
@@ -32,6 +34,7 @@ fi
 case $type in
     Somatic)
         cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp";;
+        #cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix";;
     Germline)
         cmd="call-parallel -f $refseq --pp-threads $numproc -o vars.vcf $caseBAM";;
 esac
