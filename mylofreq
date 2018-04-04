@@ -8,7 +8,7 @@ if test $# -eq 0; then
 fi
 
 # options
-type=somatic
+type=Somatic
 outprefix='out-'
 while getopts 't:p:r:1:2:o:d:' myopt; do
     case $myopt in
