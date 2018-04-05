@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+usage="usage: `basename $0` -r refseq.fa -1 case.bam -2 control.bam -o outputDir"
+
+# print usage without any arguments
+if test $# -eq 0; then
+    echo $usage >&2; exit 1
+fi
+
+# options
+outprefix='out'
+vcf="$outprefix.vcf"
+
+while getopts 'r:1:2:o:' myopt; do
+    case $myopt in
+        r) refseq=`realpath $OPTARG`;;
+        1) caseBAM=`realpath $OPTARG`;;
+        2) controlBAM=`realpath $OPTARG`;;
+        o) outputDir=`realpath $OPTARG`;;
+    esac
+done
+
+outputDir="$outputDir/somaticSniper"
+
+# check, create, and change to output directory
+if test -d $outputDir
+then echo "$outputDir already exists; exiting"; exit 1
+else mkdir $outputDir && cd $outputDir
+fi
+
+cmd="bam-somaticsniper -F vcf -f $REFSEQ $caseBAM $controlBAM $vcf"
+
+eval $cmd
