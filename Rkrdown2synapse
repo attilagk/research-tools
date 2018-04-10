@@ -2,16 +2,22 @@
 
 # Input is a kramdown flavored R markdown document
 # Output is a synapse flavored R markdown document
+# The output.syn.Rmd will be created in the same directory as input.Rmd.
 
 usage="usage: `basename $0` input.Rmd"
 
 inRmd=$1
-if test $# -ne 1; then
+owner=${2:-syn7769737}
+if test $# -eq 0; then
     echo $usage
     exit 1
 fi
 bn="`basename $inRmd .Rmd`"
-outRmd=$bn.syn.Rmd
+dn="`dirname $inRmd`"
+outRmd="$dn/$bn.syn.Rmd"
+knitrscript=$HOME/src/myknit2synapse.R 
 
-# inline equations
+# reformat delimiter for inline equations
 sed 's/\(\$\$\)\([^$]\+\)\1/\1\\(\2\\)\1/g' $inRmd > $outRmd
+
+Rscript $knitrscript $outRmd $owner && rm $outRmd
