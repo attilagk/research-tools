@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+# Input 'article.Rmd' is a kramdown flavored R markdown document and a Synapse 'projectId'.
+# There is no output; instead, the script does two tasks:
+# 1. convert article.Rmd to article.html locally
+# 2. store article.html on Synapse
+
+usage="usage: `basename $0` article.Rmd projectId"
+
+inRmd=$1
+# the default syn12119642 is the "BSM Chess Lab" project
+projectId=${2:-syn12119642}
+if test $# -eq 0; then
+    echo $usage
+    exit 1
+fi
+
+# change to the article's directory
+dn="`dirname $inRmd`"
+cd $dn
+
+knitrscript=$HOME/src/notebook2synapse.R 
+
+Rscript $knitrscript $inRmd $projectId
