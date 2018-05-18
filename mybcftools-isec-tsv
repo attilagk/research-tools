@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+# reformat a set of files [01][01]...[01] produced by 'bcftools isec -n~[01][01]...[01]' into a single file out.tsv
+
+usage="`basename $0` [01][01]...[01] > out.tsv"
+if test $# -eq 0; then
+    echo $usage; exit 1
+fi
+
+cat $* |
+sed 's/\t\([01]\)\([01]\)\([01]\)\([01]\)\([01]\)$/\t\1\t\2\t\3\t\4\t\5/'
