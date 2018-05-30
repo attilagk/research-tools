@@ -4,13 +4,13 @@ case `hostname` in
         # special variables, mostly for bioinformatics
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
-        refseq_dir="$HOME/data/GRCh37/dna"
+        refseq_dir="$HOME/data/refgenome/GRCh37/dna"
         dbsnp_dir="$HOME/data/dbsnp/human_9606"
         export REFSEQ=$refseq_dir/hs37d5.fa
         export REFSEQ_DICT=$refseq_dir/hs37d5.dict
         export DBSNP_ALL=$dbsnp_dir/00-All.vcf.gz
         export BWA_INDEX=$refseq_dir/bwa/hs37d5
-        export BOWTIE2_INDEX=$HOME/data/GRCh37/dna/bowtie2/hs37d5
+        export BOWTIE2_INDEX=$HOME/data/refgenome/GRCh37/dna/bowtie2/hs37d5
         export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
         export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
         alias sentieon="/opt/sentieon-genomics/current/bin/sentieon"
@@ -19,7 +19,7 @@ case `hostname` in
     ada)
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
-        refseq_dir=/projects/shared/GRCh37/dna
+        refseq_dir=/projects/shared/refgenome/GRCh37/dna
         dbsnp_dir=/projects/shared/dbsnp/human_9606
         export REFSEQ=$refseq_dir/hs37d5.fa
         export REFSEQ_DICT=$refseq_dir/hs37d5.dict
