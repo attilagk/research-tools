@@ -6,6 +6,7 @@ usage="`basename $0` cfgfile [output_dir]"
 #input_VCF_file=/big/results/bsm/2018-05-24-refseq-remap/chr22/NA12892_S1.vcf.gz
 #input_chain_file=/big/data/refgenome/mapping/GRCh38_to_GRCh37.chain.gz
 #ref_genome_file=/big/data/refgenome/GRCh37/ensembl/release-75/Homo_sapiens.GRCh37.75.dna.toplevel.fa
+#fai_file=/big/data/refgenome/GRCh37/ensembl/release-75/Homo_sapiens.GRCh37.75.dna.toplevel.fa.fai
 
 cfgfile=$1
 output_dir=`realpath ${2:-$PWD}`
@@ -13,10 +14,34 @@ output_dir=`realpath ${2:-$PWD}`
 . $cfgfile
 
 out_vcf=$output_dir/`basename $input_chain_file .chain.gz`-`basename $input_VCF_file .gz`
+out_vcf_old_header=$output_dir/`basename $input_chain_file .chain.gz`-`basename $input_VCF_file .gz`-old-header
 out_log=$out_vcf.log
 
-#echo "CrossMap.py vcf $input_chain_file $input_VCF_file $ref_genome_file $out_vcf 2> $out_log"
-CrossMap.py vcf $input_chain_file $input_VCF_file $ref_genome_file $out_vcf 2> $out_log &&
-    bcftools view -O z -o $out_vcf.gz $out_vcf &&
-    bcftools sort $out_vcf.gz &&
-    bcftools index --tbi $out_vcf.gz
+updateVCFcontigs () {
+    invcf=$1
+    fai=$2
+    outvcf=$3
+
+    header=`tempfile`
+    headertop=`tempfile`
+    headermiddle=`tempfile`
+    headerbottom=`tempfile`
+    headernew=`tempfile`
+
+    bcftools view -h -o $header $invcf
+    sed '/^##reference/ q' $header > $headertop
+    echo "##newreference=$fai" >> $headertop
+    sed -n '/^##contig/,$ p' $header > $headerbottom
+    sed -i '/^##contig/ d' $headerbottom
+    sed 's/^\(\S\+\)\s\+\(\S\+\).*$/##contig=<ID=\1,length=\2>/' $fai > $headermiddle
+
+    cat $headertop $headermiddle $headerbottom > $headernew
+    bcftools reheader -h $headernew -o $outvcf $invcf
+    rm $header $headertop $headermiddle $headerbottom $headernew
+}
+
+CrossMap.py vcf $input_chain_file $input_VCF_file $ref_genome_file $out_vcf_old_header 2> $out_log
+updateVCFcontigs $out_vcf_old_header $fai_file $out_vcf
+bcftools sort -o $out_vcf.gz -O z $out_vcf
+bcftools index --tbi $out_vcf.gz
+rm $out_vcf $out_vcf_old_header
