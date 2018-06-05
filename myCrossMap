@@ -1,47 +1,66 @@
 #! /usr/bin/env bash
 
-usage="`basename $0` cfgfile [output_dir]"
-
-# Example for cfgfile:
+# Wrapper around CrossMap.py, which updates header
+# Inputs: config file 'cfgfile' and 'output_dir'
+# If 'output_dir' is omitted it defaults to the current directory.
+#
+# Example for the content of the cfgfile:
+#
 #input_VCF_file=/big/results/bsm/2018-05-24-refseq-remap/chr22/NA12892_S1.vcf.gz
 #input_chain_file=/big/data/refgenome/mapping/GRCh38_to_GRCh37.chain.gz
 #ref_genome_file=/big/data/refgenome/GRCh37/ensembl/release-75/Homo_sapiens.GRCh37.75.dna.toplevel.fa
 #fai_file=/big/data/refgenome/GRCh37/ensembl/release-75/Homo_sapiens.GRCh37.75.dna.toplevel.fa.fai
+
+usage="`basename $0` cfgfile [output_dir]"
+
+if test $# -eq 0; then
+    echo $usage; exit 1
+fi
 
 cfgfile=$1
 output_dir=`realpath ${2:-$PWD}`
 
 . $cfgfile
 
+# the name of uncompressed output VCF; this will be later compressed
 out_vcf=$output_dir/`basename $input_chain_file .chain.gz`-`basename $input_VCF_file .gz`
-out_vcf_old_header=$output_dir/`basename $input_chain_file .chain.gz`-`basename $input_VCF_file .gz`-old-header
+# log file for messages by CrossMap.py
 out_log=$out_vcf.log
 
+# Update the contigs in the header of 'invcf' getting new contigs from fasta index 'fai'
 updateVCFcontigs () {
+    # input/output
     invcf=$1
     fai=$2
     outvcf=$3
-
+    # intermediate files
     header=`tempfile`
     headertop=`tempfile`
     headermiddle=`tempfile`
     headerbottom=`tempfile`
     headernew=`tempfile`
-
-    bcftools view -h -o $header $invcf
-    sed '/^##reference/ q' $header > $headertop
-    echo "##newreference=$fai" >> $headertop
+    # operations
+    bcftools view -h -o $header $invcf # store old header
+    sed '/^##reference/ q' $header > $headertop # store top part
+    echo "##newreference=$fai" >> $headertop # add name of new refseq.fai
+    # bottom part: below contig lines
     sed -n '/^##contig/,$ p' $header > $headerbottom
     sed -i '/^##contig/ d' $headerbottom
+    # contig VCF header lines with new contigs
     sed 's/^\(\S\+\)\s\+\(\S\+\).*$/##contig=<ID=\1,length=\2>/' $fai > $headermiddle
-
-    cat $headertop $headermiddle $headerbottom > $headernew
-    bcftools reheader -h $headernew -o $outvcf $invcf
-    rm $header $headertop $headermiddle $headerbottom $headernew
+    cat $headertop $headermiddle $headerbottom > $headernew # put it all together
+    bcftools reheader -h $headernew -o $outvcf $invcf # replace old header with new one
+    rm $header $headertop $headermiddle $headerbottom $headernew # clean up
 }
 
-CrossMap.py vcf $input_chain_file $input_VCF_file $ref_genome_file $out_vcf_old_header 2> $out_log
-updateVCFcontigs $out_vcf_old_header $fai_file $out_vcf
+# perform crossmap
+CrossMap.py vcf $input_chain_file $input_VCF_file $ref_genome_file $out_vcf 2> $out_log
+
+# update contigs, sort, index
+mv $out_vcf ${out_vcf}.old-header 
+updateVCFcontigs ${out_vcf}.old-header $fai_file $out_vcf
 bcftools sort -o $out_vcf.gz -O z $out_vcf
 bcftools index --tbi $out_vcf.gz
-rm $out_vcf $out_vcf_old_header
+
+# clean up
+rm $out_vcf ${out_vcf}.old-header
