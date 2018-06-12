@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Convert CrossMap's log file into a csv set to STDOUT
+usage="`basename $0` some.vcf.log"
+
+if ! test $# -eq 1; then
+    echo $usage; exit 1
+fi
+
+log=`realpath $1`
+
+echo "$(sed -n '2,$ {s/^.*: \([[:digit:]]\+\)$/\1/; p}' $log | tr '\n' ',')`basename $log .log`"
