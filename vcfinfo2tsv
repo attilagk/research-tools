@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+invcf=$1
+outdir=${2:-$PWD}
+out=$outdir/`basename $invcf`.info.tsv
+
+# comma (,) doesn't work because it sometimes separates subfields in VCFs
+separator='\t'
+
+infovars=$(bcftools view -h $invcf | \
+    sed -n '/^##INFO=<ID=\([^,]\+\),.*$/ { s//\1/; p }' | \
+    tr '\n' ' ')
+
+# format string for bcftools query
+format=$(for var in $infovars; do
+    echo -n "%INFO/$var$separator"
+done)
+
+# beautify header
+header=$(echo $format | tr -d '%')
+header=$(echo $header | tr '/' '.')
+
+echo -e "CHROM${separator}POS$separator$header" > $out
+bcftools query -f "%CHROM${separator}%POS$separator$format\n" $invcf >> $out
