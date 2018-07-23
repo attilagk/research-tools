@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+invcf=$1
+outdir=${2:-$PWD}
+out=$outdir/`basename $invcf`.gt.tsv
+
+# comma (,) doesn't work because it sometimes separates subfields in VCFs
+separator='\t'
+
+# get sample name(s) 
+
+samples=$(bcftools view -h $invcf |
+sed -n '/#CHROM\s\+POS\s\+ID\s\+REF\s\+ALT\s\+QUAL\s\+FILTER\s\+INFO\s\+FORMAT\s\+\(.*\)$/ { s//\1/; p}')
+
+if test $(echo $samples | wc -w) -gt 2; then
+    echo "Found more than two samples. Exiting." 1>&2
+    exit 1
+fi
+
+fields=$(bcftools view -h $invcf | sed -n '/^##FORMAT=<ID=\([^,]\+\),.*/ { s//\1/; p }')
+
+#bcftools view -H $invcf | cut -f10- |
+#tr ':\t' $separator
