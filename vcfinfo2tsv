@@ -29,8 +29,14 @@ fi
 infoformat=$(for var in $infovars; do
     echo -n "%INFO/$var$separator"
 done | sed 's/\\t$//')
-genotypeformat=$(echo $genotypevars |
-sed '{ s/\s\+/\\t%/g; s/^\(.*\)$/\[\\t%\1\]\\n/ }')
+# genotypeformat depends genotypevars if those exist
+if test -z "$genotypevars"; then
+    genotypeformat='\n'
+else
+    genotypeformat=$(echo $genotypevars |
+    sed '{ s/\s\+/\\t%/g; s/^\(.*\)$/\[\\t%\1\]\\n/ }')
+fi
+
 format=$infoformat$genotypeformat
 
 # COLUMN HEADERS
@@ -47,5 +53,5 @@ done)
 
 header=$(echo $infoheader$genotypeheader | tr '/' '.')
 
-echo -e "$header"
-bcftools query -f "%CHROM${separator}%POS$separator$format" $invcf
+echo -e "$header" > $out
+bcftools query -f "%CHROM${separator}%POS$separator$format" $invcf >> $out
