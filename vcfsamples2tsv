@@ -2,22 +2,39 @@
 
 invcf=$1
 outdir=${2:-$PWD}
+maxsamples=2 # the number of allowed samples
 out=$outdir/`basename $invcf`.gt.tsv
 
 # comma (,) doesn't work because it sometimes separates subfields in VCFs
 separator='\t'
 
 # get sample name(s) 
-
 samples=$(bcftools view -h $invcf |
 sed -n '/#CHROM\s\+POS\s\+ID\s\+REF\s\+ALT\s\+QUAL\s\+FILTER\s\+INFO\s\+FORMAT\s\+\(.*\)$/ { s//\1/; p}')
 
-if test $(echo $samples | wc -w) -gt 2; then
+# check if there are too many samples
+nsamples=$(echo $samples | wc -w)
+if test $nsamples -gt $maxsamples; then
     echo "Found more than two samples. Exiting." 1>&2
     exit 1
 fi
 
+# get field names (within each format block)
 fields=$(bcftools view -h $invcf | sed -n '/^##FORMAT=<ID=\([^,]\+\),.*/ { s//\1/; p }')
+#fields=$(bcftools view -H $invcf | sed 1q | cut -f9 | tr ':' ' ')
 
-#bcftools view -H $invcf | cut -f10- |
-#tr ':\t' $separator
+# make column headers based on Sample number and format field
+i=1
+while test $i -le $nsamples; do
+    for field in $fields; do
+        echo -en \\tSample$i.$field
+    done
+    i=$(($i + 1))
+done
+echo ''
+
+# argument for the format option (-f) of bcftools query
+formatstr=$(echo $fields |
+sed '{ s/\s\+/\\t%/g; s/^\(.*\)$/\[\\t%\1\]\\n/ }')
+# extract and format relevant data
+bcftools query -f "$formatstr" $invcf
