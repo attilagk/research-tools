@@ -3,22 +3,49 @@
 invcf=$1
 outdir=${2:-$PWD}
 out=$outdir/`basename $invcf`.info.tsv
+maxsamples=2 # the number of allowed samples
 
 # comma (,) doesn't work because it sometimes separates subfields in VCFs
 separator='\t'
 
-infovars=$(bcftools view -h $invcf | \
-    sed -n '/^##INFO=<ID=\([^,]\+\),.*$/ { s//\1/; p }' | \
-    tr '\n' ' ')
+# VARIABLE/ANNOTATION NAMES
+# info and format variable names
+infovars=$(bcftools view -h $invcf | sed -n '/^##INFO=<ID=\([^,]\+\),.*$/ { s//\1/; p }')
+genotypevars=$(bcftools view -h $invcf | sed -n '/^##FORMAT=<ID=\([^,]\+\),.*/ { s//\1/; p }')
 
-# format string for bcftools query
-format=$(for var in $infovars; do
+# SAMPLES
+# get sample name(s) 
+samples=$(bcftools view -h $invcf |
+sed -n '/#CHROM\s\+POS\s\+ID\s\+REF\s\+ALT\s\+QUAL\s\+FILTER\s\+INFO\s\+FORMAT\s\+\(.*\)$/ { s//\1/; p}')
+# check if there are too many samples
+nsamples=$(echo $samples | wc -w)
+if test $nsamples -gt $maxsamples; then
+    echo "Found more than two samples. Exiting." 1>&2
+    exit 1
+fi
+
+# FORMAT STRINGS
+# for bcftools query
+infoformat=$(for var in $infovars; do
     echo -n "%INFO/$var$separator"
+done | sed 's/\\t$//')
+genotypeformat=$(echo $genotypevars |
+sed '{ s/\s\+/\\t%/g; s/^\(.*\)$/\[\\t%\1\]\\n/ }')
+format=$infoformat$genotypeformat
+
+# COLUMN HEADERS
+# info columns
+infoheader="CHROM${separator}POS$separator$(echo $infoformat | tr -d '%')"
+# genotype columns
+i=1
+genotypeheader=$(while test $i -le $nsamples; do
+for var in $genotypevars; do
+    echo -n "\\tSample$i.$var"
+done
+i=$(($i + 1))
 done)
 
-# beautify header
-header=$(echo $format | tr -d '%')
-header=$(echo $header | tr '/' '.')
+header=$(echo $infoheader$genotypeheader | tr '/' '.')
 
-echo -e "CHROM${separator}POS$separator$header" > $out
-bcftools query -f "%CHROM${separator}%POS$separator$format\n" $invcf >> $out
+echo -e "$header"
+bcftools query -f "%CHROM${separator}%POS$separator$format" $invcf
