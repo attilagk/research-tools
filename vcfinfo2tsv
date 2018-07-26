@@ -41,7 +41,7 @@ format=$infoformat$genotypeformat
 
 # COLUMN HEADERS
 # info columns
-infoheader="CHROM${separator}POS$separator$(echo $infoformat | tr -d '%')"
+infoheader="CHROM${separator}POS${separator}QUAL$separator$(echo $infoformat | tr -d '%')"
 # genotype columns
 i=1
 genotypeheader=$(while test $i -le $nsamples; do
@@ -54,4 +54,4 @@ done)
 header=$(echo $infoheader$genotypeheader | tr '/' '.')
 
 echo -e "$header" > $out
-bcftools query -f "%CHROM${separator}%POS$separator$format" $invcf >> $out
+bcftools query -f "%CHROM${separator}%POS${separator}%QUAL$separator$format" $invcf >> $out
