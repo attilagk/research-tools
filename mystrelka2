@@ -37,8 +37,8 @@ $exomeOpt \
 --runDir=$analysisDir"
 
 case $type in
-    Somatic) configcmd="$configcmd --normalBam=$controlBAM --tumorBam=$caseBAM";;
-    Germline) configcmd="$configcmd --bam=$controlBAM --bam=$caseBAM";;
+    Somatic) configcmd="$configcmd --tumorBam=$caseBAM --normalBam=$controlBAM";;
+    Germline) configcmd="$configcmd --bam=$caseBAM";;
 esac
 
 eval $configcmd
