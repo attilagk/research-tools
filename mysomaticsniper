@@ -11,11 +11,13 @@ fi
 outprefix='out'
 vcf="$outprefix.vcf"
 
-while getopts 'r:1:2:o:' myopt; do
+while getopts 'r:1:2:a:b:o:' myopt; do
     case $myopt in
         r) refseq=`realpath $OPTARG`;;
         1) caseBAM=`realpath $OPTARG`;;
         2) controlBAM=`realpath $OPTARG`;;
+        a) caseSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
         o) outputDir=`realpath $OPTARG`;;
     esac
 done
@@ -31,3 +33,5 @@ fi
 cmd="bam-somaticsniper -F vcf -f $REFSEQ $caseBAM $controlBAM $vcf"
 
 eval $cmd
+
+$HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf

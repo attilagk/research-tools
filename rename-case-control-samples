@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+caseSample=TUMOR
+caseDefaultSample=TUMOR
+controlSample=NORMAL
+controlDefaultSample=NORMAL
+
+while getopts 'a:A:b:B:' myopt; do
+    case $myopt in
+        a) caseSample=$OPTARG;;
+        A) caseDefaultSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
+        B) controlDefaultSample=$OPTARG;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+vcf=$1
+
+samples=`tempfile`
+cat > $samples <<EOF
+$caseDefaultSample $caseSample
+$controlDefaultSample $controlSample
+EOF
+
+tmpvcf=`tempfile`
+mv $vcf $tmpvcf
+bcftools reheader --samples $samples $tmpvcf > $vcf && rm $samples $tmpvcf
