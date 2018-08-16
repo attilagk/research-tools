@@ -32,7 +32,7 @@ STRELKA_INSTALL_PATH=/usr/local
 configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
 
 analysisDir="${outputDir:-.}/strelka2${type}"
-variantsdir=analysisDir/results/variants/
+variantsdir=$analysisDir/results/variants/
 
 configcmd="$configScript \
 --referenceFasta=$refseq \
