@@ -57,4 +57,5 @@ case $type in
             $HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf
             bcftools index --tbi $vcf
         done
+        ;;
 esac
