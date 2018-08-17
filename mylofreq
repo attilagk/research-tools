@@ -32,19 +32,33 @@ done
 outputDir="$outputDir/lofreq$type"
 #outputDir="$outputDir/lofreq${type}-noDBSNP"
 
-# check, create, and change to output directory
-if test -d $outputDir
-then echo "$outputDir already exists; exiting"; exit 1
-else mkdir $outputDir && cd $outputDir
+if false; then
+    # check, create, and change to output directory
+    if test -d $outputDir
+    then echo "$outputDir already exists; exiting"; exit 1
+    else mkdir $outputDir && cd $outputDir
+    fi
+
+    case $type in
+        Somatic)
+            cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp";;
+            #cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix";;
+        Germline)
+            cmd="call-parallel -f $refseq --pp-threads $numproc -o vars.vcf $caseBAM";;
+    esac
+
+    cmd="/opt/lofreq_star/current/lofreq $cmd"
+    eval $cmd
 fi
 
-case $type in
-    Somatic)
-        cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp";;
-        #cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix";;
-    Germline)
-        cmd="call-parallel -f $refseq --pp-threads $numproc -o vars.vcf $caseBAM";;
-esac
+cd $outputDir
 
-cmd="/opt/lofreq_star/current/lofreq $cmd"
-eval $cmd
+vcf=${outprefix}somatic_final.snvs.vcf.gz
+vcfbn=`basename $vcf .vcf.gz`
+outvcf=$vcfbn-samples.vcf.gz
+addsample=/opt/lofreq_star/current/lofreq2_add_sample.py
+$addsample -i $vcf -o $outvcf -b $controlBAM $caseBAM
+
+caseDefaultSample=`basename $caseBAM`
+controlDefaultSample=`basename $controlBAM`
+$HOME/bin/rename-case-control-samples -a $caseSample -A $caseDefaultSample -b $controlSample -B $controlDefaultSample $outvcf
