@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# Add GT (genotype) annotation to VCF produced by strelka2Somatic
+# Add GT (genotype) annotation to VCF produced by strelka2Somatic and other callers
 
 outputType=v
 caseSample=TUMOR
@@ -16,22 +16,23 @@ done
 shift $(($OPTIND - 1))
 invcf=$1
 
-usage="usage: `basename $0` [-O v|z] invcf > outvcf"
+usage="usage: `basename $0` [-O v|z -a caseSample -b controlSample] invcf > outvcf"
 if test $# -eq 0; then
     echo $usage; exit 0
 fi
 
+# get index of case and control sample fields/columns
 fieldnames=$(bcftools view -h $invcf | grep '^#CHROM')
-casecol=$(sed "s/^\(.*$caseSample\).*$/\1/" <<<$fieldnames | wc -w)
-controlcol=$(sed "s/^\(.*$controlSample\).*$/\1/" <<<$fieldnames | wc -w)
+caseCol=$(sed "s/^\(.*$caseSample\).*$/\1/" <<<$fieldnames | wc -w)
+controlCol=$(sed "s/^\(.*$controlSample\).*$/\1/" <<<$fieldnames | wc -w)
 
 # temp files for VCF pieces
-part1=`tempfile`
+leftPart=`tempfile`
 GT=`tempfile`
 format=`tempfile`
 GTformat=`tempfile`
-controlsample=`tempfile`
-casesample=`tempfile`
+controlSample=`tempfile`
+caseSample=`tempfile`
 controlGT=`tempfile`
 caseGT=`tempfile`
 controlGTsample=`tempfile`
@@ -39,23 +40,23 @@ caseGTsample=`tempfile`
 outvcf=`tempfile`
 
 # smaller pieces of output
-bcftools view -H $invcf | cut -f 1-8 >> $part1
+bcftools view -H $invcf | cut -f 1-8 >> $leftPart
 bcftools view -H $invcf | cut -f 9 >> $format
-bcftools view -H $invcf | cut -f $controlcol >> $controlsample
-bcftools view -H $invcf | cut -f $casecol >> $casesample
-sed 's/.*/GT:/' $part1 >> $GT
-sed 's/.*/0\/0:/' $part1 >> $controlGT
-sed 's/.*/0\/1:/' $part1 >> $caseGT
+bcftools view -H $invcf | cut -f $controlCol >> $controlSample
+bcftools view -H $invcf | cut -f $caseCol >> $caseSample
+sed 's/.*/GT:/' $leftPart >> $GT
+sed 's/.*/0\/0:/' $leftPart >> $controlGT
+sed 's/.*/0\/1:/' $leftPart >> $caseGT
 
 # larger pieces of output
 bcftools view -h $invcf | sed '/^##FORMAT/q' >> $outvcf
 echo '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">' >> $outvcf
 bcftools view -h $invcf | sed -n '/^##FORMAT/,$ p' | sed -n '2,$ p' >> $outvcf
 paste -d '' $GT $format >> $GTformat
-paste -d '' $controlGT $controlsample >> $controlGTsample
-paste -d '' $caseGT $casesample >> $caseGTsample
+paste -d '' $controlGT $controlSample >> $controlGTsample
+paste -d '' $caseGT $caseSample >> $caseGTsample
 
 # entire output in desired type; clean-up
-paste $part1 $GTformat $controlGTsample $caseGTsample >> $outvcf
+paste $leftPart $GTformat $controlGTsample $caseGTsample >> $outvcf
 bcftools view -O $outputType $outvcf
-rm $part1 $GT $format $GTformat $controlsample $casesample $controlGT $caseGT $controlGTsample $caseGTsample $outvcf
+rm $leftPart $GT $format $GTformat $controlSample $caseSample $controlGT $caseGT $controlGTsample $caseGTsample $outvcf

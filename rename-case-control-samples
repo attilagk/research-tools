@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
-caseSample=TUMOR
-caseDefaultSample=TUMOR
-controlSample=NORMAL
-controlDefaultSample=NORMAL
+# Rename default case and control sample names to $caseSample and $controlSample
+# VCF file is modified *in place*
+
+caseSample=TUMOR # the desired new name for the case sample
+caseDefaultSample=TUMOR # the old/default name for the case sample
+controlSample=NORMAL # the desired new name for the control sample
+controlDefaultSample=NORMAL # the old/default name for the control sample
+
+usage="usage: `basename $0` -a caseSample -A caseDefaultSample -b controlSample -B controlDefaultSample vcf"
 
 while getopts 'a:A:b:B:' myopt; do
     case $myopt in
