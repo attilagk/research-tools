@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-usage="usage: `basename $0` -t Somatic|Germline -p numproc -r refseq.fa -1 case.bam -2 control.bam -o outputDir [-d dbsnp.vcf.gz]"
+usage="usage: `basename $0` -t Somatic|Germline -p numproc -r refseq.fa -1 case.bam -2 control.bam -o outputDir [-d dbsnp.vcf.gz -O outputType -a caseSample -b controlSample]"
 
 # print usage without any arguments
 if test $# -eq 0; then
