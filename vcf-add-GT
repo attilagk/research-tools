@@ -31,32 +31,57 @@ leftPart=`tempfile`
 GT=`tempfile`
 format=`tempfile`
 GTformat=`tempfile`
-controlSample=`tempfile`
-caseSample=`tempfile`
+controlSampleFile=`tempfile`
+caseSampleFile=`tempfile`
 controlGT=`tempfile`
 caseGT=`tempfile`
 controlGTsample=`tempfile`
 caseGTsample=`tempfile`
 outvcf=`tempfile`
 
-# smaller pieces of output
 bcftools view -H $invcf | cut -f 1-8 >> $leftPart
-bcftools view -H $invcf | cut -f 9 >> $format
-bcftools view -H $invcf | cut -f $controlCol >> $controlSample
-bcftools view -H $invcf | cut -f $caseCol >> $caseSample
-sed 's/.*/GT:/' $leftPart >> $GT
-sed 's/.*/0\/0:/' $leftPart >> $controlGT
-sed 's/.*/0\/1:/' $leftPart >> $caseGT
 
-# larger pieces of output
-bcftools view -h $invcf | sed '/^##FORMAT/q' >> $outvcf
-echo '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">' >> $outvcf
-bcftools view -h $invcf | sed -n '/^##FORMAT/,$ p' | sed -n '2,$ p' >> $outvcf
+# FORMAT should be the 9th column (right next to INFO); check if it's missing
+missingFormat=F
+if test $caseCol -eq 8 && test $controlCol -eq 8; then
+    missingFormat=T
+fi
+case $missingFormat in
+    T)
+        # smaller pieces of output
+        bcftools view -H $invcf | sed 's/.*//' >> $format
+        cp $format $controlSampleFile
+        cp $format $caseSampleFile
+        # larger pieces
+        bcftools view -h $invcf | sed '/^##fileformat/q' >> $outvcf
+        echo '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">' >> $outvcf
+        bcftools view -h $invcf | sed -n '/^##fileformat/,$ p' | sed -n '2,$ p' >> $outvcf
+        sed -i "s/^#CHROM.*$/&\tFORMAT\t$controlSample\t$caseSample/" $outvcf
+        tagdelim=''
+        ;;
+    F)
+        # smaller pieces of output
+        bcftools view -H $invcf | cut -f 9 >> $format
+        bcftools view -H $invcf | cut -f $controlCol >> $controlSampleFile
+        bcftools view -H $invcf | cut -f $caseCol >> $caseSampleFile
+        # larger pieces
+        bcftools view -h $invcf | sed '/^##FORMAT/q' >> $outvcf
+        echo '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">' >> $outvcf
+        bcftools view -h $invcf | sed -n '/^##FORMAT/,$ p' | sed -n '2,$ p' >> $outvcf
+        tagdelim=':'
+        ;;
+esac
+
+sed "s/.*/GT$tagdelim/" $leftPart >> $GT
+sed "s/.*/0\/0$tagdelim/" $leftPart >> $controlGT
+sed "s/.*/0\/1$tagdelim/" $leftPart >> $caseGT
+
 paste -d '' $GT $format >> $GTformat
-paste -d '' $controlGT $controlSample >> $controlGTsample
-paste -d '' $caseGT $caseSample >> $caseGTsample
+paste -d '' $controlGT $controlSampleFile >> $controlGTsample
+paste -d '' $caseGT $caseSampleFile >> $caseGTsample
 
 # entire output in desired type; clean-up
 paste $leftPart $GTformat $controlGTsample $caseGTsample >> $outvcf
+
 bcftools view -O $outputType $outvcf
-rm $leftPart $GT $format $GTformat $controlSample $caseSample $controlGT $caseGT $controlGTsample $caseGTsample $outvcf
+rm $leftPart $GT $format $GTformat $controlSampleFile $caseSampleFile $controlGT $caseGT $controlGTsample $caseGTsample $outvcf
