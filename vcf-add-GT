@@ -21,6 +21,11 @@ if test $# -eq 0; then
     echo $usage; exit 0
 fi
 
+# silently exit if there's already a GT tag in FORMAT: nothing to do
+if bcftools view -h $invcf | grep --quiet '##FORMAT=<ID=GT'
+then exit
+fi
+
 # get index of case and control sample fields/columns
 fieldnames=$(bcftools view -h $invcf | grep '^#CHROM')
 caseCol=$(sed "s/^\(.*$caseSample\).*$/\1/" <<<$fieldnames | wc -w)
