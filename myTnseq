@@ -20,6 +20,7 @@ analysisDir=${outputDir:-.}/Tnseq
 mkdir -p $analysisDir
 
 #SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
-$sentieon_executable driver -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
+$sentieon_executable driver \
+    -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
     --tumor_sample $caseSample --normal_sample $controlSample \
     $analysisDir/tnseq.vcf
