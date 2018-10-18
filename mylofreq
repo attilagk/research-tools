@@ -32,7 +32,7 @@ done
 outputDir="$outputDir/lofreq$type"
 #outputDir="$outputDir/lofreq${type}-noDBSNP"
 
-if false; then
+if true; then
     # check, create, and change to output directory
     if test -d $outputDir
     then echo "$outputDir already exists; exiting"; exit 1

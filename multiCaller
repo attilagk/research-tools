@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+type=Somatic # or Germline
+numproc=`nproc`
+refseq=$REFSEQ
+outputDir=$PWD
+outputType=z
+dbsnp=$DBSNP_ALL 
+
+while getopts 't:p:r:1:2:a:b:o:O:d:x' myopt; do
+    case $myopt in
+        t) type=$OPTARG;;
+        p) numproc=$OPTARG;;
+        r) refseq=$OPTARG;;
+        1) caseBAM=$(realpath $OPTARG);;
+        2) controlBAM=$(realpath $OPTARG);;
+        a) caseSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
+        o) outputDir=$OPTARG;;
+        O) outputType=$OPTARG;;
+        d) dbsnp=`realpath $OPTARG`;;
+        x) exomeOpt='--exome';;
+    esac
+done
+
+SNfromBAMheader () {
+    BAM=$1
+    SN=$(samtools view -H $BAM |
+    sed -n '/^@RG/ { s/^.*SM:\(\S*\)\s.*$/\1/; p }' |
+    sort -u)
+    numSamplesinBAM=$(echo $SN | wc -w)
+    if test $numSamplesinBAM -ne 1; then
+        echo "$BAM contains $numSamplesinBAM samples instead of 1.  Exiting" 1>&2
+        exit 1
+    fi
+    echo $SN
+}
+
+caseSample=${caseSample:-$(SNfromBAMheader $caseBAM)}
+controlSample=${controlSample:-$(SNfromBAMheader $controlBAM)}
+#echo $caseSample
+
+# Caller functions
+
+lofreqSomatic () {
+    outprefix='out-'
+    outputDir="$outputDir/lofreq$type"
+    # create output directory unless it already exists and change to it
+    if test -d $outputDir
+    then :
+    else mkdir $outputDir
+    fi
+    saveDir=$PWD
+    cd $outputDir
+    # run lofreq
+    cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp"
+    ( time -p eval "/opt/lofreq_star/current/lofreq $cmd" ) >& caller-runtime
+    # output file names
+    vcf=${outprefix}somatic_final.snvs.vcf.gz
+    vcfbn=`basename $vcf .vcf.gz`
+    outvcf=$vcfbn-samples.vcf.gz
+    # add samples and write to outvcf
+    addsample=/opt/lofreq_star/current/lofreq2_add_sample.py
+    $addsample -i $vcf -o $outvcf -b $controlBAM $caseBAM
+    # my way
+    caseDefaultSample=`basename $caseBAM`
+    controlDefaultSample=`basename $controlBAM`
+    $HOME/bin/rename-case-control-samples -a $caseSample -A $caseDefaultSample -b $controlSample -B $controlDefaultSample $outvcf
+    cd $saveDir
+}
+
+somaticSniper () {
+    :
+}
+
+strelka2Germline2s () {
+    :
+}
+
+strelka2Somatic () {
+    :
+}
+
+TNhaplotyper () {
+    :
+}
+
+( time -p lofreqSomatic ) >& lofreqSomatic-runtime
