@@ -68,20 +68,60 @@ somaticSniper () {
     $HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf
 }
 
+strelka2 () {
+    # some variables
+    jobOpt="-j $numproc"
+    STRELKA_INSTALL_PATH=/usr/local
+    configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
+    analysisDir="${outputDir:-.}"
+    variantsdir=$analysisDir/results/variants/
+    # build config command
+    configcmd="$configScript \
+        --referenceFasta=$refseq \
+        $exomeOpt \
+        --runDir=$analysisDir"
+    case $type in
+        Somatic) configcmd="$configcmd --normalBam=$controlBAM --tumorBam=$caseBAM";;
+        Germline) configcmd="$configcmd --bam=$controlBAM --bam=$caseBAM";;
+    esac
+    # run
+    eval $configcmd
+    $analysisDir/runWorkflow.py -m local $jobOpt
+    # rename case and control samples for Somatic caller
+    case $type in
+        Somatic)
+            cd $variantsdir
+            for vcf in *.vcf.gz; do
+                echo $vcf
+                bcftools view -h $vcf | grep '^#CHROM'
+                $HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf
+                bcftools index --tbi $vcf
+            done
+            ;;
+    esac
+}
+
 strelka2Germline2s () {
-    :
+    type=Germline
+    strelka2
 }
 
 strelka2Somatic () {
-    :
+    type=Somatic
+    strelka2
 }
 
 TNhaplotyper () {
-    :
+    export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
+    export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+    sentieon_executable=/opt/sentieon-genomics/current/bin/sentieon
+    $sentieon_executable driver \
+        -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
+        --tumor_sample $caseSample --normal_sample $controlSample tnseq.vcf
 }
 
 
-for caller in somaticSniper; do
+for caller in strelka2Somatic; do
     outputDir="$outputDir/$caller"
     # create output directory unless it already exists and change to it
     if test -d $outputDir
