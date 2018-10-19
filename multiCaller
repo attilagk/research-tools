@@ -111,17 +111,41 @@ strelka2Somatic () {
     strelka2
 }
 
-TNhaplotyper () {
+TNseq () {
     export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
     export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
     sentieon_executable=/opt/sentieon-genomics/current/bin/sentieon
+    #TODO: get missing VCF files from somewhere
+    if false; then
+        sentieon_refdir="`dirname $REFSEQ`/../sentieon"
+        bqsr_sites=" -k $sentieon_refdir/Mills_and_1000G_gold_standard.indels.b37.vcf \
+            -k $sentieon_refdir/1000G_phase1.indels.b37.vcf \
+            -k $sentieon_refdir/dbsnp_138.b37.vcf"
+        caseTable=`basename $caseBAM .bam`.qcal.table
+        controlTable=`basename $controlBAM .bam`.qcal.table
+        # BQSR
+        $sentieon_executable driver \
+            -t $numproc -r $refseq -i $caseBAM \
+            --algo QualCal $bqsr_sites $caseTable
+        $sentieon_executable driver \
+            -t $numproc -r $refseq -i $controlBAM \
+            --algo QualCal $bqsr_sites $controlTable
+        # call variants with TNhaplotyper (mutect2)
+        $sentieon_executable driver \
+            -t $numproc -r $refseq -i $caseBAM -i $controlBAM \
+            -q $caseTable -q $controlTable \
+            --algo TNhaplotyper \
+            --tumor_sample $caseSample --normal_sample $controlSample tnseq.vcf
+    fi
+    # call variants with TNhaplotyper (mutect2)
     $sentieon_executable driver \
-        -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
+        -t $numproc -r $refseq -i $caseBAM -i $controlBAM \
+        --algo TNhaplotyper \
         --tumor_sample $caseSample --normal_sample $controlSample tnseq.vcf
 }
 
 
-for caller in strelka2Somatic; do
+for caller in TNseq; do
     outputDir="$outputDir/$caller"
     # create output directory unless it already exists and change to it
     if test -d $outputDir
