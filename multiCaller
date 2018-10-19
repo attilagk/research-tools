@@ -54,7 +54,7 @@ lofreqSomatic () {
     cd $outputDir
     # run lofreq
     cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp"
-    ( time -p eval "/opt/lofreq_star/current/lofreq $cmd" ) >& caller-runtime
+    eval "/opt/lofreq_star/current/lofreq $cmd"
     # output file names
     vcf=${outprefix}somatic_final.snvs.vcf.gz
     vcfbn=`basename $vcf .vcf.gz`
@@ -85,4 +85,7 @@ TNhaplotyper () {
     :
 }
 
-( time -p lofreqSomatic ) >& lofreqSomatic-runtime
+# record runtime and redirect STDOUT and STDERR to log file
+( time -p lofreqSomatic ) &>lofreqSomatic.log
+
+
