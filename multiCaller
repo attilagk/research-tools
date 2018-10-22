@@ -6,8 +6,9 @@ refseq=$REFSEQ
 outputDir=$PWD
 outputType=z
 dbsnp=$DBSNP_ALL 
+PostprocessOnly=false
 
-while getopts 't:p:r:1:2:a:b:o:O:d:x' myopt; do
+while getopts 't:p:r:1:2:a:b:o:O:d:xP' myopt; do
     case $myopt in
         t) type=$OPTARG;;
         p) numproc=$OPTARG;;
@@ -20,6 +21,7 @@ while getopts 't:p:r:1:2:a:b:o:O:d:x' myopt; do
         O) outputType=$OPTARG;;
         d) dbsnp=`realpath $OPTARG`;;
         x) exomeOpt='--exome';;
+        P) PostprocessOnly=true;;
     esac
 done
 
@@ -36,13 +38,31 @@ SNfromBAMheader () {
     echo $SN
 }
 
+Postproc () {
+    if ! test -d $outputDir/snvs; then
+        mkdir -p $outputDir/snvs
+    fi
+    if ! test -d $outputDir/indels; then
+        mkdir -p $outputDir/indels
+    fi
+    outsnvs=$outputDir/snvs/$caller.vcf.gz
+    bcftools view -o $outsnvs -O z -v snps $insnvs
+    outindels=$outputDir/indels/$caller.vcf.gz
+    bcftools view -o $outindels -O z -v indels $inindels
+    # for some callers tabix is necessary
+    tabix $outsnvs
+    tabix $outindels
+}
+
 caseSample=${caseSample:-$(SNfromBAMheader $caseBAM)}
 controlSample=${controlSample:-$(SNfromBAMheader $controlBAM)}
 
 
-# CALLER FUNCTIONS
+# CALLER AND POSTPROCESSING FUNCTIONS
 
-lofreqSomatic () {
+# lofreqSomatic
+
+lofreqSomaticCaller () {
     outprefix='out-'
     # run lofreq
     cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp"
@@ -60,13 +80,27 @@ lofreqSomatic () {
     $HOME/bin/rename-case-control-samples -a $caseSample -A $caseDefaultSample -b $controlSample -B $controlDefaultSample $outvcf
 }
 
-somaticSniper () {
+lofreqSomaticPostproc () {
+    insnvs=$callerDir/out-somatic_final.snvs.vcf.gz
+    inindels=$callerDir/out-somatic_final.indels.vcf.gz
+}
+
+# somaticSniper
+
+somaticSniperCaller () {
     outprefix='out'
     vcf="$outprefix.vcf"
     cmd="bam-somaticsniper -F vcf -f $REFSEQ $caseBAM $controlBAM $vcf"
     eval $cmd
     $HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf
 }
+
+somaticSniperPostproc () {
+    insnvs=$callerDir/out.vcf
+    inindels=$insnvs
+}
+
+# strelka2 general
 
 strelka2 () {
     # some variables
@@ -101,17 +135,33 @@ strelka2 () {
     esac
 }
 
-strelka2Germline2s () {
+# strelka2Germline2s
+
+strelka2Germline2sCaller () {
     type=Germline
     strelka2
 }
 
-strelka2Somatic () {
+strelka2Germline2sPostproc () {
+    insnvs=$callerDir/results/variants/variants.vcf.gz
+    inindels=$insnvs
+}
+
+# strelka2Somatic
+
+strelka2SomaticCaller () {
     type=Somatic
     strelka2
 }
 
-TNseq () {
+strelka2SomaticPostproc () {
+    insnvs=$callerDir/results/variants/somatic.snvs.vcf.gz
+    inindels=$callerDir/results/variants/somatic.indels.vcf.gz
+}
+
+# TNseq
+
+TNseqCaller () {
     export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
     export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
     sentieon_executable=/opt/sentieon-genomics/current/bin/sentieon
@@ -144,17 +194,25 @@ TNseq () {
         --tumor_sample $caseSample --normal_sample $controlSample tnseq.vcf
 }
 
+TNseqPostproc () {
+    insnvs=$callerDir/tnseq.vcf
+    inindels=$insnvs
+}
 
-for caller in somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic; do
-    outputDir="$outputDir/$caller"
+for caller in somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq; do
+    callerDir="$outputDir/$caller"
     # create output directory unless it already exists and change to it
-    if test -d $outputDir
+    if test -d $callerDir
     then :
-    else mkdir $outputDir
+    else mkdir $callerDir
     fi
     saveDir=$PWD
-    cd $outputDir
+    cd $callerDir
     # record runtime and redirect STDOUT and STDERR to log file
-    ( time -p $caller ) &>$caller.log
+    if ! $PostprocessOnly; then
+        ( time -p ${caller}Caller ) &>$caller.log
+    fi
+    ${caller}Postproc
+    Postproc
     cd $saveDir
 done
