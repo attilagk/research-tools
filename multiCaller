@@ -145,7 +145,7 @@ TNseq () {
 }
 
 
-for caller in TNseq; do
+for caller in somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic; do
     outputDir="$outputDir/$caller"
     # create output directory unless it already exists and change to it
     if test -d $outputDir
