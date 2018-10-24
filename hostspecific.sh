@@ -4,6 +4,7 @@ case `hostname` in
         # special variables, mostly for bioinformatics
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
+        export GATK_BUNDLE="/big/data/GATK-bundle"
         refseq_dir="$HOME/data/refgenome/GRCh37/dna"
         dbsnp_dir="$HOME/data/dbsnp/human_9606"
         export REFSEQ=$refseq_dir/hs37d5.fa
@@ -19,6 +20,7 @@ case `hostname` in
     ada)
         export PICARD="/opt/picard/current/picard.jar"
         export GATK="/opt/gatk/current/GenomeAnalysisTK.jar"
+        export GATK_BUNDLE="/projects/shared/GATK-bundle"
         refseq_dir=/projects/shared/refgenome/GRCh37/dna
         dbsnp_dir=/projects/shared/dbsnp/human_9606
         export REFSEQ=$refseq_dir/hs37d5.fa
