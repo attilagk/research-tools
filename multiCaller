@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+#callers: somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq
+
 type=Somatic # or Germline
-numproc=`nproc`
+numproc=8
 refseq=$REFSEQ
 outputDir=$PWD
 outputType=z
@@ -26,6 +28,9 @@ while getopts 't:p:r:1:2:a:b:o:O:d:g:xP' myopt; do
         P) PostprocessOnly=true;;
     esac
 done
+shift $(($OPTIND - 1))
+# default set of callers; other callers: lofreqSomatic, TNseq
+callers="${@:-somaticSniper strelka2Germline2s strelka2Somatic}"
 
 SNfromBAMheader () {
     BAM=$1
@@ -109,7 +114,7 @@ strelka2 () {
     jobOpt="-j $numproc"
     STRELKA_INSTALL_PATH=/usr/local
     configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
-    analysisDir="${outputDir:-.}"
+    analysisDir=`realpath $PWD`
     variantsdir=$analysisDir/results/variants/
     # build config command
     configcmd="$configScript \
@@ -133,6 +138,7 @@ strelka2 () {
                 $HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf
                 bcftools index --tbi $vcf
             done
+            cd $analysisDir
             ;;
     esac
 }
@@ -193,8 +199,7 @@ TNseqPostproc () {
     inindels=$insnvs
 }
 
-#for caller in somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq; do
-for caller in TNseq; do
+for caller in $callers; do
     callerDir="$outputDir/$caller"
     # create output directory unless it already exists and change to it
     if test -d $callerDir
