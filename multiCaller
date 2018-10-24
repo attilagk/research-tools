@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-#callers: somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq
+# Apply one or more variant callers to the BAM pair caseBAM and controlBAM.
+# Callers: somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq
 
 type=Somatic # or Germline
 numproc=8
@@ -10,6 +11,33 @@ outputType=z
 dbsnp=$DBSNP_ALL 
 PostprocessOnly=false
 gatkBundle=$GATK_BUNDLE
+
+helpfile=`mktemp`
+cat >> $helpfile <<EOF
+
+Usage:
+`basename $0` [-t type] [-p numproc] [-r refseq] -1 caseBAM -2 controlBAM [-a caseSample] [-b controlSample] [-o oututDir] [-O outputType] [-d dbsnp] [-g gatkBundle] [-x] [-P] [caller_1 [... [caller_n]]]
+
+Options:
+    t) type ($type): Somatic|Germline
+    p) numproc ($numproc): number of threads
+    r) refseq ($refseq): reference sequence
+    1) caseBAM (no default): case.bam
+    2) controlBAM (no default): control.bam
+    a) caseSample (obtained from caseBAM): name of case sample 
+    b) controlSample (obtained from controlBAM): name of control sample 
+    o) outputDir ($outputDir): output directory
+    O) outputType ($outputType): v--VCF, z--VCF.gz
+    d) dbsnp ($dbsnp): path to dbsnp
+    g) gatkBundle ($gatkBundle): path to the GATK bundle
+    x) exomeOpt (flag): with -x strelka2 will analyze only the exome
+    P) PostprocessOnly (flag): with -P only post processing but no calling is done
+EOF
+
+if test $# -eq 0; then
+    cat $helpfile; exit
+fi
+rm $helpfile
 
 while getopts 't:p:r:1:2:a:b:o:O:d:g:xP' myopt; do
     case $myopt in
