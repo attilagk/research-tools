@@ -11,12 +11,17 @@ outputType=z
 dbsnp=$DBSNP_ALL 
 PostprocessOnly=false
 gatkBundle=$GATK_BUNDLE
+displayHelp=false
 
+# store help page in a temporary help file
 helpfile=`mktemp`
 cat >> $helpfile <<EOF
 
 Usage:
-`basename $0` [-t type] [-p numproc] [-r refseq] -1 caseBAM -2 controlBAM [-a caseSample] [-b controlSample] [-o oututDir] [-O outputType] [-d dbsnp] [-g gatkBundle] [-x] [-P] [caller_1 [... [caller_n]]]
+`basename $0` [-t type] [-p numproc] [-r refseq] -1 caseBAM -2 controlBAM [-a caseSample] [-b controlSample] [-o oututDir] [-O outputType] [-d dbsnp] [-g gatkBundle] [-x] [-P] [caller_list]
+
+Arguments:
+caller_list = caller_1 [... [caller_n]]; defaults to somaticSniper strelka2Germline2s strelka2Somatic
 
 Options:
     t) type ($type): Somatic|Germline
@@ -32,14 +37,17 @@ Options:
     g) gatkBundle ($gatkBundle): path to the GATK bundle
     x) exomeOpt (flag): with -x strelka2 will analyze only the exome
     P) PostprocessOnly (flag): with -P only post processing but no calling is done
+    h) displayHelp (flag): display this help page
+
 EOF
 
+# display help if zero options and arguments are given
 if test $# -eq 0; then
-    cat $helpfile; exit
+    cat $helpfile; rm $helpfile; exit
 fi
-rm $helpfile
 
-while getopts 't:p:r:1:2:a:b:o:O:d:g:xP' myopt; do
+# process options
+while getopts 't:p:r:1:2:a:b:o:O:d:g:xPh' myopt; do
     case $myopt in
         t) type=$OPTARG;;
         p) numproc=$OPTARG;;
@@ -54,12 +62,23 @@ while getopts 't:p:r:1:2:a:b:o:O:d:g:xP' myopt; do
         g) gatkBundle=`realpath $OPTARG`;;
         x) exomeOpt='--exome';;
         P) PostprocessOnly=true;;
+        h) displayHelp=true;;
     esac
 done
 shift $(($OPTIND - 1))
 # default set of callers; other callers: lofreqSomatic, TNseq
 callers="${@:-somaticSniper strelka2Germline2s strelka2Somatic}"
 
+# display help if -h is given
+if $displayHelp; then
+    cat $helpfile; rm $helpfile; exit
+fi
+rm $helpfile
+
+
+# GENERAL FUNCTIONS
+
+# get sample names from the BAM header
 SNfromBAMheader () {
     BAM=$1
     SN=$(samtools view -H $BAM |
@@ -73,6 +92,8 @@ SNfromBAMheader () {
     echo $SN
 }
 
+# Post processing VCFs: separate SNVs and indels and store VCFs in gzipped
+# format and with appropriate name
 Postproc () {
     if ! test -d $outputDir/snvs; then
         mkdir -p $outputDir/snvs
@@ -93,7 +114,7 @@ caseSample=${caseSample:-$(SNfromBAMheader $caseBAM)}
 controlSample=${controlSample:-$(SNfromBAMheader $controlBAM)}
 
 
-# CALLER AND POSTPROCESSING FUNCTIONS
+# CALLER SPECIFIC FUNCTIONS
 
 # lofreqSomatic
 
@@ -227,9 +248,12 @@ TNseqPostproc () {
     inindels=$insnvs
 }
 
+
+# ACTION
+
 for caller in $callers; do
-    callerDir="$outputDir/$caller"
     # create output directory unless it already exists and change to it
+    callerDir="$outputDir/$caller"
     if test -d $callerDir
     then :
     else mkdir $callerDir
@@ -240,6 +264,7 @@ for caller in $callers; do
     if ! $PostprocessOnly; then
         ( time -p ${caller}Caller ) &>$caller.log
     fi
+    # perform post processing
     ${caller}Postproc
     Postproc
     cd $saveDir
