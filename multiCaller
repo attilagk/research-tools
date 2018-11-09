@@ -21,7 +21,7 @@ Apply one or more variant callers to the BAM pair caseBAM and controlBAM.
 Callers: somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq
 
 Usage:
-`basename $0` [-t type] [-p numproc] [-r refseq] -1 caseBAM -2 controlBAM [-a caseSample] [-b controlSample] [-o oututDir] [-O outputType] [-d dbsnp] [-g gatkBundle] [-x] [-P] [caller_list]
+`basename $0` [-t type] [-p numproc] [-r refseq] -1 caseBAM -2 controlBAM [-a caseSample] [-b controlSample] [-o outputDir] [-O outputType] [-d dbsnp] [-g gatkBundle] [-x] [-P] [caller_list]
 
 Arguments:
 caller_list = caller_1 [... [caller_n]]; defaults to somaticSniper strelka2Germline2s strelka2Somatic
