@@ -18,7 +18,7 @@ helpfile=`mktemp`
 cat >> $helpfile <<EOF
 
 Apply one or more variant callers to the BAM pair caseBAM and controlBAM.
-Callers: somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq
+Callers: somaticSniper strelka2Germline2s strelka2Somatic lofreqSomatic TNseq JointSNVMix2
 
 Usage:
 `basename $0` [-t type] [-p numproc] [-r refseq] -1 caseBAM -2 controlBAM [-a caseSample] [-b controlSample] [-o outputDir] [-O outputType] [-d dbsnp] [-g gatkBundle] [-x] [-P] [caller_list]
@@ -251,17 +251,49 @@ TNseqPostproc () {
     inindels=$insnvs
 }
 
+# JointSNVMix2
+
+JointSNVMix2Caller () {
+outprefix='out'
+#outbn=$outputDir/$outprefix
+outbn=$outprefix
+tsv=$outbn.tsv
+vcf=$outbn.vcf
+vcfbody=$outbn.vcf.body
+vcfheader=$HOME/bin/jsm.vcf.header
+params=$outbn.cfg
+trainlog=$outbn-train.log
+classifylog=$outbn-classify.log
+# train
+jsm.py train $REFSEQ $controlBAM $caseBAM $params &> $trainlog
+# classify
+jsm.py classify --parameters_file $params --out_file $tsv $REFSEQ $controlBAM $caseBAM &> $classifylog
+# convert tsv to vcf
+jsm_tsv2vcf.py < $tsv > $vcfbody
+cat $vcfheader $vcfbody | bcftools view -O z -o $vcf.gz -
+bcftools index --tbi $vcf.gz
+# clean up
+rm $vcfbody
+}
+
+JointSNVMix2Postproc () {
+    insnvs=$callerDir/out.vcf.gz
+    inindels=$insnvs
+}
 
 # ACTION
 
 for caller in $callers; do
     # create output directory unless it already exists and change to it
+    if ! test -d $outputDir; then
+        mkdir -p $outputDir
+    fi
+    outputDir=`realpath $outputDir`
     callerDir="$outputDir/$caller"
     if test -d $callerDir
     then :
     else mkdir $callerDir
     fi
-    saveDir=$PWD
     cd $callerDir
     # record runtime and redirect STDOUT and STDERR to log file
     if ! $PostprocessOnly; then
@@ -270,5 +302,5 @@ for caller in $callers; do
     # perform post processing
     ${caller}Postproc
     Postproc
-    cd $saveDir
+    cd $outputDir
 done
