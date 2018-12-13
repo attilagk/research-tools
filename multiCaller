@@ -52,7 +52,7 @@ if test $# -eq 0; then
 fi
 
 # process options
-while getopts 't:p:r:1:2:a:b:o:O:d:g:xPh' myopt; do
+while getopts 't:p:r:1:2:a:b:o:O:d:g:s:xPh' myopt; do
     case $myopt in
         t) type=$OPTARG;;
         p) numproc=$OPTARG;;
