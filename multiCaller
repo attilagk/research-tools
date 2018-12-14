@@ -275,6 +275,8 @@ jsm.py classify --somatic_threshold $somatic_threshold --parameters_file $params
 # convert tsv to vcf
 jsm_tsv2vcf.py < $tsv > $vcfbody
 cat $vcfheader $vcfbody | bcftools view -O z -o $vcf.gz -
+# correct sample names
+$HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf.gz
 bcftools index --tbi $vcf.gz
 # clean up
 rm $vcfbody
