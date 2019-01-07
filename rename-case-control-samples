@@ -10,6 +10,11 @@ controlDefaultSample=NORMAL # the old/default name for the control sample
 
 usage="usage: `basename $0` -a caseSample -A caseDefaultSample -b controlSample -B controlDefaultSample vcf"
 
+# display help if zero options and arguments are given
+if test $# -eq 0; then
+    echo $usage; exit
+fi
+
 while getopts 'a:A:b:B:' myopt; do
     case $myopt in
         a) caseSample=$OPTARG;;
