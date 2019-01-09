@@ -226,8 +226,15 @@ strelka2SomaticPostproc () {
 
 TNseqCaller () {
     export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
-    export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
     sentieon_executable=/opt/sentieon-genomics/current/bin/sentieon
+    # license server: see Don Freed's email of Jan 8 2019, 8:44 PM
+    license_file=$SENTIEON_INSTALL_DIR/../license/Mount_Sinai_School_of_Medicine-Chess_Lab_cluster.lic
+    log_file=/home/attila/tools/sentieon.log
+    if ! pgrep -f licsrvr; then
+        $sentieon_executable licsrvr --start --log $log_file $license_file
+    fi
+    export SENTIEON_LICENSE=ada.1470mad.mssm.edu:8990
+    #export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
     b37dir=$gatkBundle/b37-unpacked
     bqsr_sites=" -k $b37dir/Mills_and_1000G_gold_standard.indels.b37.vcf \
         -k $b37dir/1000G_phase1.indels.b37.vcf \
