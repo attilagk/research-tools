@@ -46,24 +46,33 @@ exit
 fi
 
 # input args
-Rmdpath=$1
+notebookpath=$1
 jekylldir=$2
 case $3 in
     -) relprojectdir='';;
     *) relprojectdir=$3;;
 esac
 
+if echo $notebookpath | grep '\.Rmd$'; then
+    extension=".Rmd"
+elif echo $notebookpath | grep '\.ipynb$'; then
+    extension=".ipynb"
+else
+    echo "Currently only .Rmd and .ipynb files are supported.  Exiting" 1>&2
+    exit 1
+fi
+
 # this generates an .md in the directory of the input .Rmd
 knitrscript=$HOME/src/myknit.R 
 
 # directory of input .Rmd; this will hold intermediate dirs and files
-postname=`basename $Rmdpath .Rmd`
-indir=`dirname $Rmdpath`
+postname=`basename $notebookpath $extension`
+indir=`dirname $notebookpath`
 cd $indir || { echo "`basename $0`: could not locate directory $indir" 1>&2; exit 1; }
 # figure is a symlink if the script has already been run successfully;
 # otherwise could be a directory; in any case, it will be automatically removed!
 rm -rf figure
-Rmd="$postname.Rmd"
+notebook="$postname$extension"
 md="$postname.md"
 
 # make output directories if necessary
@@ -73,7 +82,7 @@ test -d $projectdir || { echo "`basename $0`: could not locate directory $projec
 
 # function that integrates newly generated .md and figures into jekyll site
 post2jekyll () {
-    md=$1 Rmd=$2 jekylldir=$3 relprojectdir=$4
+    md=$1 notebook=$2 jekylldir=$3 relprojectdir=$4
 
     # set up paths and variables, ensure that dirs exist
     absprojectdir=$jekylldir/$relprojectdir
@@ -88,7 +97,7 @@ post2jekyll () {
     test -d $absRdir || mkdir -p $absRdir
     # duplicate Rmd only in backup mode
     case $backup in
-        T) cp $Rmd -t $absRdir;;
+        T) cp $notebook -t $absRdir;;
     esac
 
     # subdirectory for figures with $absRdir
@@ -118,8 +127,14 @@ post2jekyll () {
     chmod -w $postmd
 }
 
+if test $extension == '.Rmd'; then
+    knitcmd="Rscript $knitrscript"
+elif test $extension == '.ipynb'; then
+    knitcmd="jupyter nbconvert --to markdown"
+fi
+
 # knit the .Rmd to .md
-if Rscript $knitrscript $Rmd && post2jekyll $md $Rmd $jekylldir $relprojectdir; then
+if $knitcmd $notebook && post2jekyll $md $notebook $jekylldir $relprojectdir; then
     cd $jekylldir && bundle exec jekyll build --incremental
 else
     echo "`basename $0`: error; check $indir for intermediate files" 1>&2
