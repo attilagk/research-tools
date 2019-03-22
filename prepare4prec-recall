@@ -16,7 +16,7 @@ Prepare in.vcf for precision-recall calculations:
 * filter for snp|indel (default: $vartype)
 
 Usage:
-`basename $0` [-v vartype] [-p numproc] [-r regions] [-O outformat] [-p] in.vcf > out.vcf
+`basename $0` [-v vartype] [-p numproc] [-r regions] [-O outformat] [-P] in.vcf > out.vcf
 
 Options:
     v) vartype ($vartype): snp|indel

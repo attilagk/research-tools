@@ -34,7 +34,6 @@ if test $# -eq 0; then
     cat $helpfile; rm $helpfile; exit
 fi
 
-callset=$1
 nthread="$(($numproc - 1))" # number of ADDITIONAL threads
 # display help if -h is given
 if $displayHelp; then
@@ -42,11 +41,20 @@ if $displayHelp; then
 fi
 rm $helpfile
 
-C=$(bcftools view --threads $nthread -H $callset | wc -l)
 V=$(bcftools view --threads $nthread -H $truthset | wc -l)
-CV=$(bcftools isec -n~11 $callset $truthset | wc -l)
 
-cat <<EOF
-C	V	CV
-$C	$V	$CV
+tmpvcf=`mktemp`
+cat > $tmpvcf <<EOF
+callset,path,C,V,CV
 EOF
+
+for callsetvcf; do
+    callset=`basename $callsetvcf .vcf.gz`
+    C=$(bcftools view --threads $nthread -H $callsetvcf | wc -l)
+    CV=$(bcftools isec -n~11 $callsetvcf $truthset 2>/dev/null | wc -l)
+    cat >> $tmpvcf <<EOF
+$callset,`realpath $callsetvcf`,$C,$V,$CV
+EOF
+done
+
+setsizes2prec_recall.py < $tmpvcf && rm $tmpvcf
