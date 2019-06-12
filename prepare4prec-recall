@@ -10,7 +10,7 @@ helpfile=`mktemp`
 cat >> $helpfile <<EOF
 
 Prepare in.vcf for precision-recall calculations:
-* spit multiallelic into biallelic records
+* split multiallelic into biallelic records
 * filter for genomic regions (default: all autosomes)
 * filter for "PASS" (default: don't filter)
 * filter for snp|indel (default: $vartype)

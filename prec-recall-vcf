@@ -9,18 +9,18 @@ cat >> $helpfile <<EOF
 Set sizes for precison--recall calculation
 
 Usage:
-`basename $0` [-t truthset] callset.vcf.gz
+`basename $0` [-t truthset] callset_1.vcf.gz [callset_2.vcf.gz ...]
 
 Argument:
-callset.vcf.gz is a bgzipped, indexed callset cleaned by prepare4prec-recall
+callset_n.vcf.gz is a bgzipped, indexed callset cleaned by prepare4prec-recall
 
 Options:
     t) truthset ($truthset)
-    t) numproc ($numproc)
+    p) numproc ($numproc)
     h) displayHelp (flag): display this help page
 EOF
 # process options
-while getopts 't:h' myopt; do
+while getopts 't:p:h' myopt; do
     case $myopt in
         t) truthset=$OPTARG;;
         p) numproc=$OPTARG;;
