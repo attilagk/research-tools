@@ -5,6 +5,7 @@ numproc=`nproc`
 regions=$(echo {1..22} | tr ' ' ',')
 outformat=v
 filterstr=''
+donorm=true
 displayHelp=false
 helpfile=`mktemp`
 cat >> $helpfile <<EOF
@@ -24,16 +25,18 @@ Options:
     r) regions ($regions): genomic regions
     O) outformat ($outformat): v|u|z
     P) turn on PASS filter (flag)
+    n) do not normalize (flag)
     h) displayHelp (flag): display this help page
 EOF
 # process options
-while getopts 'v:p:r:O:Ph' myopt; do
+while getopts 'v:p:r:O:Pnh' myopt; do
     case $myopt in
         v) vartype=$OPTARG;;
         p) numproc=$OPTARG;;
         r) regions=$OPTARG;;
         O) outformat=$OPTARG;;
         P) filterstr='-f .,PASS';;
+        n) donorm=false;;
         h) displayHelp=true;;
     esac
 done
@@ -52,6 +55,13 @@ if $displayHelp; then
 fi
 rm $helpfile
 
+# the first bcftools command depends on if we want to normalize
+if $donorm; then
+    bcfcmd="norm --thread $nthread -r$regions -m- $invcf"
+else
+    bcfcmd="view --thread $nthread -r$regions $invcf"
+fi
+
 # perform operations
-bcftools norm --thread $nthread -r"$regions" -m- -Ou $invcf |
+bcftools $bcfcmd |
 bcftools view --thread $nthread -iTYPE=\"$vartype\" $filterstr -O $outformat
