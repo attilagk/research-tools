@@ -3,9 +3,9 @@
 # Wrapper of knit-basic for knitting some input.Rmd in projectdir
 # and then incorporating it into the lab-notebook.
 
-usage="usage: `basename $0` input.Rmd"
+usage="usage: `basename $0` input.Rmd|input.ipynb [featimg]"
 
-if test $# -ne 1; then
+if test $# -gt 2; then
     echo $usage
     exit 1
 fi
@@ -28,7 +28,11 @@ if grep "$projectdir" <<< $rmdpath >/dev/null; then
             notebookdir=$HOME/websites/open-notebook/$project
             ;;
     esac
-    knit-basic -b $1 $notebookdir projects/$project
+    if test -z $2; then
+        knit-basic -b $1 $notebookdir projects/$project
+    else
+        knit-basic -i $2 -b $1 $notebookdir projects/$project
+    fi
 elif grep "$ruexperienced" <<< $rmdpath >/dev/null; then
     knit-basic $1 $ruexperienced -
 else

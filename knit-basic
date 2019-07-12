@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 
+featimg=''
 # options
-while getopts ":b" myopt; do
+while getopts "bi:" myopt; do
     case $myopt in
         b) backup=T;;
+        i) featimg=$OPTARG;;
         *) backup=F;;
     esac
 done
 shift $(( $OPTIND - 1))
 
-#if test 3 -ne 3; then
 if test $# -ne 3; then
     cat <<EOF
 Usage:
-`basename $0` [-b] [path/to/]post-name.Rmd jekyll/dir project/dir
-`basename $0` [-b] [path/to/]post-name.Rmd jekyll/dir -
+`basename $0` [-b] [-i path/to/featimg.png] [path/to/]post-name.Rmd jekyll/dir project/dir
+`basename $0` [-b] [-i path/to/featimg.png] [path/to/]post-name.Rmd jekyll/dir -
 
 Use knitrscript ~/src/myknit.R to knit post-name.Rmd into post-name.md,
 then integrate post-name.md into the jekyll site...
@@ -29,6 +30,7 @@ Output:
 
 Options:
 -b: do backup
+-i: path to feature image
 
 Details:
 Integration into the jekyll site means more than merely placing the output files
@@ -82,7 +84,7 @@ test -d $projectdir || { echo "`basename $0`: could not locate directory $projec
 
 # function that integrates newly generated .md and figures into jekyll site
 post2jekyll () {
-    md=$1 notebook=$2 jekylldir=$3 relprojectdir=$4
+    md=$1 notebook=$2 jekylldir=$3 relprojectdir=$4 featimg=${5:-default}
 
     # set up paths and variables, ensure that dirs exist
     absprojectdir=$jekylldir/$relprojectdir
@@ -114,13 +116,26 @@ post2jekyll () {
     # replace absRfigdir with the newly generated figure (if present)
     test -d $absRfigdir && rm -rf $absRfigdir
     if test -d figure; then
-        # the first .png file we find will be the "featimg"
-        cd figure; set *.png; cd ..
-        featimg=$1
-        mv figure $absRfigdir
+        if test $featimg != default; then
+            featimg="`basename $featimg`"
+            figDir=named-figure
+        else
+            # the first .png file we find will be the "featimg"
+            cd figure; set *.png; cd ..
+            featimg=$1
+            figDir=figure
+        fi
+        case $extension in
+            '.ipynb') cp_mv_cmd="cp -r";;
+            '.R') cp_mv_cmd=mv;;
+        esac
+        $cp_mv_cmd $figDir $absRfigdir
         # only create symlink in backup mode
         case $backup in
-            T) ln -s $absRfigdir figure;;
+            T)
+                if test -h nbfigure; then unlink nbfigure; fi
+                ln -s $absRfigdir nbfigure
+                ;;
         esac
     else
         featimg=''
@@ -176,8 +191,7 @@ fi
 
 # knit the .Rmd to .md
 #if $knitcmd $notebook; then
-if $knitcmd $notebook && post2jekyll $md $notebook $jekylldir $relprojectdir; then
-    :
+if $knitcmd $notebook && post2jekyll $md $notebook $jekylldir $relprojectdir $featimg; then
     cd $jekylldir && bundle exec jekyll build --incremental
 else
     echo "`basename $0`: error; check $indir for intermediate files" 1>&2
