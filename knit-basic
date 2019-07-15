@@ -118,7 +118,8 @@ post2jekyll () {
     if test -d figure || test -d unnamed-figure; then
         if test $featimg != default; then
             featimg="`basename $featimg`"
-            figDir=named-figure
+            figDir=unnamed-figure
+            #figDir=named-figure
         else
             # the first .png file we find will be the "featimg"
             cd unnamed-figure; set *.png; cd ..
@@ -126,7 +127,8 @@ post2jekyll () {
             figDir=unnamed-figure
         fi
         case $extension in
-            '.ipynb') cp_mv_cmd="cp -r";;
+            #'.ipynb') cp_mv_cmd="cp -r";;
+            '.ipynb') cp_mv_cmd=mv;;
             '.R') cp_mv_cmd=mv;;
         esac
         $cp_mv_cmd $figDir $absRfigdir
