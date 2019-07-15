@@ -12,6 +12,8 @@ dbsnp=$DBSNP_ALL
 PostprocessOnly=false
 gatkBundle=$GATK_BUNDLE
 somatic_threshold=0.1
+parameters_file=''
+initial_parameters_file=''
 displayHelp=false
 
 # store help page in a temporary help file
@@ -40,6 +42,8 @@ Options:
     d) dbsnp ($dbsnp): path to dbsnp
     g) gatkBundle ($gatkBundle): path to the GATK bundle
     s) somatic_threshold=$OPTARG: for JointSNVMix2; see jsm.py classify -h
+    c) parameters_file=$OPTARG;;
+    i) initial_parameters_file=$OPTARG;;
     x) exomeOpt (flag): with -x strelka2 will analyze only the exome
     P) PostprocessOnly (flag): with -P only post processing but no calling is done
     h) displayHelp (flag): display this help page
@@ -52,7 +56,7 @@ if test $# -eq 0; then
 fi
 
 # process options
-while getopts 't:p:r:1:2:a:b:o:O:d:g:s:xPh' myopt; do
+while getopts 't:p:r:1:2:a:b:o:O:d:g:s:c:i:xPh' myopt; do
     case $myopt in
         t) type=$OPTARG;;
         p) numproc=$OPTARG;;
@@ -66,6 +70,8 @@ while getopts 't:p:r:1:2:a:b:o:O:d:g:s:xPh' myopt; do
         d) dbsnp=`realpath $OPTARG`;;
         g) gatkBundle=`realpath $OPTARG`;;
         s) somatic_threshold=$OPTARG;;
+        c) parameters_file=$OPTARG;;
+        i) initial_parameters_file=$OPTARG;;
         x) exomeOpt='--exome';;
         P) PostprocessOnly=true;;
         h) displayHelp=true;;
@@ -274,8 +280,14 @@ vcfheader=$HOME/bin/jsm.vcf.header
 params=$outbn.cfg
 trainlog=$outbn-train.log
 classifylog=$outbn-classify.log
+# check if initial params file exists
+if -f $initial_parameters_file; then
+    init_params_opt="--initial_parameters_file $initial_parameters_file"
+else
+    init_params_opt=""
+fi
 # train
-jsm.py train $REFSEQ $controlBAM $caseBAM $params &> $trainlog
+jsm.py train $init_params_opt $REFSEQ $controlBAM $caseBAM $params &> $trainlog
 # classify
 jsm.py classify --somatic_threshold $somatic_threshold --parameters_file $params \
     --out_file $tsv $REFSEQ $controlBAM $caseBAM &> $classifylog
