@@ -108,31 +108,23 @@ post2jekyll () {
     case $extension in
         '.ipynb')
             Pyfigdir=${postname}_files
-            if test -d $Pyfigdir; then rm -r unnamed-figure; mv $Pyfigdir unnamed-figure; fi
+            if test -d $Pyfigdir; then mv $Pyfigdir figure; fi
             ;;
     esac
 
     absRfigdir=$jekylldir/$relRfigdir
     # replace absRfigdir with the newly generated figure (if present)
     test -d $absRfigdir && rm -rf $absRfigdir
-    if test -d figure || test -d unnamed-figure; then
+    if test -d figure; then
         if test $featimg != default; then
+            cp $featimg -t figure
             featimg="`basename $featimg`"
-            figDir=unnamed-figure
-            #figDir=named-figure
         else
             # the first .png file we find will be the "featimg"
-            cd unnamed-figure; set *.png; cd ..
+            cd figure; set *.png; cd ..
             featimg=$1
-            figDir=unnamed-figure
         fi
-        case $extension in
-            #'.ipynb') cp_mv_cmd="cp -r";;
-            '.ipynb') cp_mv_cmd=mv;;
-            '.R') cp_mv_cmd=mv;;
-        esac
-        $cp_mv_cmd $figDir $absRfigdir
-        #$cp_mv_cmd $figDir -t $jekylldir/$relRdir
+        mv figure $absRfigdir
         # only create symlink in backup mode
         case $backup in
             T)
