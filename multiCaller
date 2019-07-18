@@ -281,7 +281,7 @@ params=$outbn.cfg
 trainlog=$outbn-train.log
 classifylog=$outbn-classify.log
 # check if initial params file exists
-if -f $initial_parameters_file; then
+if test -f $initial_parameters_file; then
     init_params_opt="--initial_parameters_file $initial_parameters_file"
 else
     init_params_opt=""
