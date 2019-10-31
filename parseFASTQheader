@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+# parse header of possibly gzipped FASTQ file
+# see https://en.wikipedia.org/wiki/FASTQ_format
+usage="`basename $0` input.fq[.gz] [instrument|run|flowcell|lane|tile|xcoord|ycoord|pairmember|isfiltered|ctrbits|indexseq]"
+# process options
+while getopts "h" opt; do
+    case $opt in
+        h) echo -e $usage 2>&1; exit ;;
+    esac
+done
+shift $(($OPTIND - 1))
+# input args
+fastq=$1
+field=$2
+# there must be exactly two args
+if test $# -ne 2 ; then
+    echo $usage; exit 1
+fi
+# check for gzip compression status
+if echo $fastq | grep '\.gz$' >/dev/null; then
+    cmd="gunzip -c"
+else
+    cmd=cat
+fi
+# get header
+header=$($cmd $fastq | sed 1q)
+# extract field
+case $field in
+    instrument) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\1/' ;;
+    run) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\2/' ;;
+    flowcell) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\3/' ;;
+    lane) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\4/' ;;
+    tile) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\5/' ;;
+    xcoord) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\6/' ;;
+    ycoord) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\7/' ;;
+    pairmember) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\8/' ;;
+    isfiltered) echo $header |
+            sed 's/^@\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\) \([^:]*\):\([^:]*\):\([^:]*\):\([^:]*\)/\9/' ;;
+    ctrbits) echo $header |
+            sed 's/^@[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]* [^:]*:[^:]*:\([^:]*\):\([^:]*\)/\1/' ;;
+    indexseq) echo $header |
+            sed 's/^@[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]* [^:]*:[^:]*:\([^:]*\):\([^:]*\)/\2/' ;;
+esac
