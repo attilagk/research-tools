@@ -2,6 +2,7 @@
 
 export SENTIEON_INSTALL_DIR=/opt/sentieon-genomics/current/
 export SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+sentieon_executable=/opt/sentieon-genomics/current/bin/sentieon
 
 while getopts 'p:r:1:2:a:b:o:' myopt; do
     case $myopt in
@@ -18,6 +19,8 @@ done
 analysisDir=${outputDir:-.}/Tnseq
 mkdir -p $analysisDir
 
-SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic" /opt/sentieon-genomics/current/bin/sentieon driver -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
+#SENTIEON_LICENSE="/opt/sentieon-genomics/license/Mount_Sinai_School_of_Medicine_eval.lic"
+$sentieon_executable driver \
+    -t $numproc -r $refseq -i $caseBAM -i $controlBAM --algo TNhaplotyper \
     --tumor_sample $caseSample --normal_sample $controlSample \
     $analysisDir/tnseq.vcf

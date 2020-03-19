@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# Rename default case and control sample names to $caseSample and $controlSample
+# VCF file is modified *in place*
+
+caseSample=TUMOR # the desired new name for the case sample
+caseDefaultSample=TUMOR # the old/default name for the case sample
+controlSample=NORMAL # the desired new name for the control sample
+controlDefaultSample=NORMAL # the old/default name for the control sample
+
+usage="usage: `basename $0` -a caseSample -A caseDefaultSample -b controlSample -B controlDefaultSample vcf"
+
+# display help if zero options and arguments are given
+if test $# -eq 0; then
+    echo $usage; exit
+fi
+
+while getopts 'a:A:b:B:' myopt; do
+    case $myopt in
+        a) caseSample=$OPTARG;;
+        A) caseDefaultSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
+        B) controlDefaultSample=$OPTARG;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+vcf=$1
+
+samples=`tempfile`
+cat > $samples <<EOF
+$caseDefaultSample $caseSample
+$controlDefaultSample $controlSample
+EOF
+
+tmpvcf=`tempfile`
+mv $vcf $tmpvcf
+bcftools reheader --samples $samples $tmpvcf > $vcf && rm $samples $tmpvcf

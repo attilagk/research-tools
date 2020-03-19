@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+truthset=/big/results/bsm/2019-03-18-truth-sets/chr22/snp/truthset/complete/truthset.vcf.gz
+numproc=`nproc`
+displayHelp=false
+helpfile=`mktemp`
+cat >> $helpfile <<EOF
+
+Set sizes for precison--recall calculation
+
+Usage:
+`basename $0` [-t truthset] callset_1.vcf.gz [callset_2.vcf.gz ...]
+
+Argument:
+callset_n.vcf.gz is a bgzipped, indexed callset cleaned by prepare4prec-recall
+
+Options:
+    t) truthset ($truthset)
+    p) numproc ($numproc)
+    h) displayHelp (flag): display this help page
+EOF
+# process options
+while getopts 't:p:h' myopt; do
+    case $myopt in
+        t) truthset=$OPTARG;;
+        p) numproc=$OPTARG;;
+        h) displayHelp=true;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+# display help if zero options and arguments are given
+if test $# -eq 0; then
+    cat $helpfile; rm $helpfile; exit
+fi
+
+nthread="$(($numproc - 1))" # number of ADDITIONAL threads
+# display help if -h is given
+if $displayHelp; then
+    cat $helpfile; rm $helpfile; exit
+fi
+rm $helpfile
+
+V=$(bcftools view --threads $nthread -H $truthset | wc -l)
+
+tmpvcf=`mktemp`
+cat > $tmpvcf <<EOF
+callset,path,C,V,CV
+EOF
+
+for callsetvcf; do
+    callset=`basename $callsetvcf .vcf.gz`
+    C=$(bcftools view --threads $nthread -H $callsetvcf | wc -l)
+    CV=$(bcftools isec -n~11 $callsetvcf $truthset 2>/dev/null | wc -l)
+    cat >> $tmpvcf <<EOF
+$callset,`realpath $callsetvcf`,$C,$V,$CV
+EOF
+done
+
+setsizes2prec_recall.py < $tmpvcf && rm $tmpvcf

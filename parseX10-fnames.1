@@ -28,6 +28,10 @@ ID=${sample}-${index}_$PU
 CN=X10
 PL=ILLUMINA
 
+# get rid of trailing digits identifying sample replicates
+# necessary for certain variant callers
+SM=$(echo $SM | sed 's/^\(.*\)[[:digit:]]$/\1/')
+
 # output: read group (@RG) tags for SAM format; for specifications see
 # http://samtools.github.io/hts-specs/SAMv1.pdf
 echo -r "ID:$ID" -r "LB:$LB" -r "SM:$SM" -r "PU:$PU" -r "CN:$CN" -r "PL:$PL"

@@ -5,8 +5,8 @@
 # Project, Folder, or File)"---quoted from the help document of
 # knit2synapse::knitfile2synapse R function.
 # There is no output; instead, the script does two tasks:
-# 1. convert article.Rmd to article.syn.Rmd, a synapse flavored R markdown document
-# 2. knit article.syn.Rmd to article, a Wiki subpage on Synapse
+# 1. convert article.Rmd to article.s.Rmd, a synapse flavored R markdown document
+# 2. knit article.s.Rmd to article, a Wiki subpage on Synapse
 # article.html
 
 usage="usage: `basename $0` article.Rmd synowner"
@@ -18,18 +18,20 @@ if test $# -eq 0; then
     echo $usage
     exit 1
 fi
+
+# assignments
 bn="`basename $inRmd .Rmd`"
 dn="`dirname $inRmd`"
 synPostfix=s
 synRmd="$dn/$bn.$synPostfix.Rmd"
-#synRmd="$dn/$bn.syn.Rmd"
 # the $bn.syn_cache directory is a byproduct of knitfile2synapse
 syncache="$dn/$bn.${synPostfix}_cache"
-#knitrscript=$HOME/src/notebook2synapse.R 
 knitrscript=$HOME/src/myknit2synapse.R 
+
 # reformat delimiter for inline equations
 # turn off cache, which is incompatible with knitfile2synapse
 sed 's/\(\$\$\)\([^$]\+\)\1/\1\\(\2\\)\1/g; s/\(cache\s*=\s*\)TRUE/\1FALSE/' $inRmd > $synRmd
+
 ## remove jekyll front matter
 #sed 's/\(\$\$\)\([^$]\+\)\1/\1\\(\2\\)\1/g' $inRmd | sed '/---/, /---/ d' > $synRmd
 

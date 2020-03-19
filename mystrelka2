@@ -10,13 +10,15 @@ fi
 # options
 type=Somatic
 exomeOpt=''
-while getopts 't:p:r:1:2:o:x' myopt; do
+while getopts 't:p:r:1:2:a:b:o:x' myopt; do
     case $myopt in
         t) type=$OPTARG;;
         p) numproc=$OPTARG;;
         r) refseq=$OPTARG;;
         1) caseBAM=$OPTARG;;
         2) controlBAM=$OPTARG;;
+        a) caseSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
         o) outputDir=$OPTARG;;
         x) exomeOpt='--exome';;
     esac
@@ -30,6 +32,7 @@ STRELKA_INSTALL_PATH=/usr/local
 configScript="${STRELKA_INSTALL_PATH}/bin/configureStrelka${type}Workflow.py"
 
 analysisDir="${outputDir:-.}/strelka2${type}"
+variantsdir=$analysisDir/results/variants/
 
 configcmd="$configScript \
 --referenceFasta=$refseq \
@@ -37,10 +40,22 @@ $exomeOpt \
 --runDir=$analysisDir"
 
 case $type in
-    Somatic) configcmd="$configcmd --tumorBam=$caseBAM --normalBam=$controlBAM";;
-    Germline) configcmd="$configcmd --bam=$caseBAM";;
+    Somatic) configcmd="$configcmd --normalBam=$controlBAM --tumorBam=$caseBAM";;
+    Germline) configcmd="$configcmd --bam=$controlBAM --bam=$caseBAM";;
 esac
 
 eval $configcmd
 
 $analysisDir/runWorkflow.py -m local $jobOpt
+
+case $type in
+    Somatic)
+        cd $variantsdir
+        for vcf in *.vcf.gz; do
+            echo $vcf
+            bcftools view -h $vcf | grep '^#CHROM'
+            $HOME/bin/rename-case-control-samples -a $caseSample -b $controlSample $vcf
+            bcftools index --tbi $vcf
+        done
+        ;;
+esac

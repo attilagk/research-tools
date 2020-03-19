@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-usage="usage: `basename $0` -t Somatic|Germline -p numproc -r refseq.fa -1 case.bam -2 control.bam -o outputDir [-d dbsnp.vcf.gz]"
+usage="usage: `basename $0` -t Somatic|Germline -p numproc -r refseq.fa -1 case.bam -2 control.bam -o outputDir [-d dbsnp.vcf.gz -O outputType -a caseSample -b controlSample]"
 
 # print usage without any arguments
 if test $# -eq 0; then
@@ -10,7 +10,11 @@ fi
 # options
 type=Somatic
 outprefix='out-'
-while getopts 't:p:r:1:2:o:d:' myopt; do
+outputType=z
+caseSample=TUMOR
+controlSample=NORMAL
+
+while getopts 't:p:r:1:2:o:d:O:a:b:' myopt; do
     case $myopt in
         t) type=$OPTARG;;
         p) numproc=$OPTARG;;
@@ -19,25 +23,42 @@ while getopts 't:p:r:1:2:o:d:' myopt; do
         2) controlBAM=`realpath $OPTARG`;;
         o) outputDir=`realpath $OPTARG`;;
         d) dbsnp=`realpath $OPTARG`;;
+        O) outputType=$OPTARG;;
+        a) caseSample=$OPTARG;;
+        b) controlSample=$OPTARG;;
     esac
 done
 
 outputDir="$outputDir/lofreq$type"
 #outputDir="$outputDir/lofreq${type}-noDBSNP"
 
-# check, create, and change to output directory
-if test -d $outputDir
-then echo "$outputDir already exists; exiting"; exit 1
-else mkdir $outputDir && cd $outputDir
+if true; then
+    # check, create, and change to output directory
+    if test -d $outputDir
+    then echo "$outputDir already exists; exiting"; exit 1
+    else mkdir $outputDir && cd $outputDir
+    fi
+
+    case $type in
+        Somatic)
+            cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp";;
+            #cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix";;
+        Germline)
+            cmd="call-parallel -f $refseq --pp-threads $numproc -o vars.vcf $caseBAM";;
+    esac
+
+    cmd="/opt/lofreq_star/current/lofreq $cmd"
+    eval $cmd
 fi
 
-case $type in
-    Somatic)
-        cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix -d $dbsnp";;
-        #cmd="somatic -n $controlBAM -t $caseBAM -f $refseq --threads $numproc -o $outprefix";;
-    Germline)
-        cmd="call-parallel -f $refseq --pp-threads $numproc -o vars.vcf $caseBAM";;
-esac
+cd $outputDir
 
-cmd="/opt/lofreq_star/current/lofreq $cmd"
-eval $cmd
+vcf=${outprefix}somatic_final.snvs.vcf.gz
+vcfbn=`basename $vcf .vcf.gz`
+outvcf=$vcfbn-samples.vcf.gz
+addsample=/opt/lofreq_star/current/lofreq2_add_sample.py
+$addsample -i $vcf -o $outvcf -b $controlBAM $caseBAM
+
+caseDefaultSample=`basename $caseBAM`
+controlDefaultSample=`basename $controlBAM`
+$HOME/bin/rename-case-control-samples -a $caseSample -A $caseDefaultSample -b $controlSample -B $controlDefaultSample $outvcf
