@@ -23,7 +23,7 @@ do
 done
 
 # get Mehaa's Excel sheet on DNA libraries
-dnalibxls=BSM_Project_Chess.xlsb
+dnalibxls=BSM_Project_Chess.xlsx
 dnalibdir="$HOME/projects/bsm/data/dnalib"
 rsync aqua:~/Desktop/$dnalibxls $dnalibdir
 soffice --convert-to csv --outdir $dnalibdir $dnalibdir/$dnalibxls
