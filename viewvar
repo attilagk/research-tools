@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+
+# View variant in bam
+usage="`basename $0` [-l|-c|-h] chr pos bam"
+
+leftalign=false
+# process options
+while getopts "lch" opt; do
+    case $opt in
+        l) leftalign=true;;
+        c) leftalign=false;;
+        h) echo $usage; exit;;
+    esac
+done
+shift $(($OPTIND - 1))
+
+if test $# -ne 3; then
+    echo $usage; exit
+fi
+
+chr=$1
+pos=$2
+bam=$3
+
+# delim char to insert before and after pos
+if $leftalign; then
+    delim=''
+    rightshift=0
+else
+    delim='|'
+    rightshift=40
+fi
+
+tviewpos=$(($pos - $rightshift))
+echo -e "$chr:$pos in $bam\n"
+samtools tview -p $chr:$tviewpos -d T $bam $REFSEQ |
+    sed "s/^\(.\{1,40\}\)\(.\)\(.*\)$/\1$delim\2$delim\3/"
