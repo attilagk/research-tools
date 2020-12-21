@@ -33,6 +33,5 @@ fi
 
 tviewpos=$(($pos - $rightshift))
 echo -e "$chr:$pos in $bam\n"
-REFSEQ=/projects/shared/refgenome/GRCh37/dna/hs37d5.fa
 samtools tview -p $chr:$tviewpos -d T $bam $REFSEQ |
     sed "s/^\(.\{1,40\}\)\(.\)\(.*\)$/\1$delim\2$delim\3/"
