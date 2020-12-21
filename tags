@@ -1,0 +1,94 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+EVINCE_IFACE	evince_dbus.py	/^EVINCE_IFACE = "org.gnome.evince.Application"$/;"	v
+EVINCE_PATH	evince_dbus.py	/^EVINCE_PATH = "\/org\/gnome\/evince\/Evince"$/;"	v
+EV_DAEMON_IFACE	evince_dbus.py	/^EV_DAEMON_IFACE = "org.gnome.evince.Daemon"$/;"	v
+EV_DAEMON_NAME	evince_dbus.py	/^EV_DAEMON_NAME = "org.gnome.evince.Daemon"$/;"	v
+EV_DAEMON_PATH	evince_dbus.py	/^EV_DAEMON_PATH = "\/org\/gnome\/evince\/Daemon"$/;"	v
+EV_WINDOW_IFACE	evince_dbus.py	/^EV_WINDOW_IFACE = "org.gnome.evince.Window"$/;"	v
+EvinceWindowProxy	evince_dbus.py	/^class EvinceWindowProxy:$/;"	c
+JointSNVMix2Caller	multiCaller	/^JointSNVMix2Caller () {$/;"	f
+JointSNVMix2Postproc	multiCaller	/^JointSNVMix2Postproc () {$/;"	f
+Postproc	multiCaller	/^Postproc () {$/;"	f
+SNfromBAMheader	multiCaller	/^SNfromBAMheader () {$/;"	f
+SyncView	evince_dbus.py	/^    def SyncView(self, input_file, data, time):$/;"	m	class:EvinceWindowProxy
+TNseqCaller	multiCaller	/^TNseqCaller () {$/;"	f
+TNseqPostproc	multiCaller	/^TNseqPostproc () {$/;"	f
+__filter__	mf2vcf.py	/^        'het':$/;"	v
+__format__	mf2vcf.py	/^        'ref_softclip':$/;"	v
+__format_spec__	mf2vcf.py	/^__format_spec__ = '.4g'$/;"	v
+__info__	mf2vcf.py	/^        'mappability':$/;"	v
+__init__	evince_dbus.py	/^    def __init__(self, uri, spawn = False, logger = None):$/;"	m	class:EvinceWindowProxy
+_get_dbus_name	evince_dbus.py	/^    def _get_dbus_name(self, spawn):$/;"	m	class:EvinceWindowProxy
+_on_doc_loaded	evince_dbus.py	/^    def _on_doc_loaded(self, uri, **keyargs):$/;"	m	class:EvinceWindowProxy
+_syncview_handler	evince_dbus.py	/^    def _syncview_handler(self, window_list):$/;"	m	class:EvinceWindowProxy
+a	evince_dbus.py	/^    a = EvinceWindowProxy('file:\/\/' + path_output, True,logger=logger)$/;"	v
+align1pair	alignX10	/^align1pair () {$/;"	f
+bus	evince_dbus.py	/^    bus = None$/;"	v	class:EvinceWindowProxy
+ch	evince_dbus.py	/^    ch = logging.StreamHandler()$/;"	v
+chrom_alt_fields	mf2vcf.py	/^def chrom_alt_fields(mfpred):$/;"	f
+contig_metainfo	mf2vcf.py	/^def contig_metainfo(reffaipath='\/home\/attila\/data\/refgenome\/GRCh37\/dna\/hs37d5.fa.fai'):$/;"	f
+daemon	evince_dbus.py	/^    daemon = None$/;"	v	class:EvinceWindowProxy
+data_lines	mf2vcf.py	/^def data_lines(mfpred):$/;"	f
+extend_w_prec_recall	setsizes2prec_recall.py	/^def extend_w_prec_recall(fp):$/;"	f
+fetch	grch37-or-grch38-prepare.sh	/^fetch () {$/;"	f
+file_format_metainfo	mf2vcf.py	/^def file_format_metainfo():$/;"	f
+format_sample_fields	mf2vcf.py	/^def format_sample_fields(mfpred):$/;"	f
+formatter	evince_dbus.py	/^    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')$/;"	v
+get_lnum	print-nth-read.sh	/^function get_lnum() {$/;"	f
+handle_find_document_error	evince_dbus.py	/^    def handle_find_document_error(self, error):$/;"	m	class:EvinceWindowProxy
+handle_find_document_reply	evince_dbus.py	/^    def handle_find_document_reply(self, evince_name):$/;"	m	class:EvinceWindowProxy
+handle_get_window_list_error	evince_dbus.py	/^    def handle_get_window_list_error (self, e):$/;"	m	class:EvinceWindowProxy
+handle_get_window_list_reply	evince_dbus.py	/^    def handle_get_window_list_reply (self, window_list):$/;"	m	class:EvinceWindowProxy
+helper	mf2vcf.py	/^    def helper(ix):$/;"	f	function:contig_metainfo
+id_field	mf2vcf.py	/^    def id_field():$/;"	f	function:chrom_alt_fields
+info_fields	mf2vcf.py	/^def info_fields(mfpred):$/;"	f
+info_float	mf2vcf.py	/^        def info_float(x):$/;"	f	function:info_fields.one_info_field
+info_format_metainfo	mf2vcf.py	/^def info_format_metainfo(kind='info'):$/;"	f
+info_integer	mf2vcf.py	/^        def info_integer(x):$/;"	f	function:info_fields.one_info_field
+info_string	mf2vcf.py	/^        def info_string(x):$/;"	f	function:info_fields.one_info_field
+input_file	evince_dbus.py	/^    input_file  = sys.argv[3]$/;"	v
+jsm_edit_records	jsm_tsv2vcf.py	/^def jsm_edit_records(jsm_tsv, out_tsv = "\/dev\/stdout", max_nrows = math.inf):$/;"	f
+lofreqSomaticCaller	multiCaller	/^lofreqSomaticCaller () {$/;"	f
+lofreqSomaticPostproc	multiCaller	/^lofreqSomaticPostproc () {$/;"	f
+logger	evince_dbus.py	/^    logger = logging.getLogger("evince_dbus")$/;"	v
+loop	evince_dbus.py	/^    loop = GObject.MainLoop()$/;"	v
+main	mf2vcf.py	/^def main(mfpred_path, refpath, vcfgz_path):$/;"	f
+metainfo	mf2vcf.py	/^def metainfo(refpath='\/home\/attila\/data\/refgenome\/GRCh37\/dna\/hs37d5.fa'):$/;"	f
+mfpred_path	mf2vcf.py	/^    mfpred_path = sys.stdin$/;"	v
+mychecksum	grch37-or-grch38-prepare.sh	/^    mychecksum () {$/;"	f
+on_sync_source	evince_dbus.py	/^    def on_sync_source(self, input_file, source_link, timestamp):$/;"	m	class:EvinceWindowProxy
+on_window_close	evince_dbus.py	/^    def on_window_close(self):$/;"	m	class:EvinceWindowProxy
+one_info_field	mf2vcf.py	/^    def one_info_field(mfid='mappability'):$/;"	f	function:info_fields
+one_info_metainfo	mf2vcf.py	/^    def one_info_metainfo(mfid):$/;"	f	function:info_format_metainfo
+one_part	mf2vcf.py	/^        def one_part(part):$/;"	f	function:info_format_metainfo.one_info_metainfo
+one_sample_field	mf2vcf.py	/^    def one_sample_field(mfpred, mfid='AF'):$/;"	f	function:format_sample_fields
+output_file	evince_dbus.py	/^    output_file = sys.argv[1]$/;"	v
+path_input	evince_dbus.py	/^    path_input   = os.getcwd() + '\/' + input_file$/;"	v
+path_output	evince_dbus.py	/^    path_output  = os.getcwd() + '\/' + output_file$/;"	v
+post2jekyll	knit-basic	/^post2jekyll () {$/;"	f
+print_usage	evince_dbus.py	/^    def print_usage():$/;"	f
+qual_filter_fields	mf2vcf.py	/^def qual_filter_fields(mfpred):$/;"	f
+read_mf_predictions	mf2vcf.py	/^def read_mf_predictions(mfpred_path):$/;"	f
+readcount	fastq-stats	/^readcount() {$/;"	f
+readlength	fastq-stats	/^readlength() {$/;"	f
+reference_metainfo	mf2vcf.py	/^def reference_metainfo(refpath='\/home\/attila\/data\/refgenome\/GRCh37\/dna\/hs37d5.fa'):$/;"	f
+refpath	mf2vcf.py	/^        refpath = str(sys.argv[1])$/;"	v
+sample_float	mf2vcf.py	/^        def sample_float(x):$/;"	f	function:format_sample_fields.one_sample_field
+sample_general	mf2vcf.py	/^        def sample_general(x):$/;"	f	function:format_sample_fields.one_sample_field
+set_source_handler	evince_dbus.py	/^    def set_source_handler (self, source_handler):$/;"	m	class:EvinceWindowProxy
+somaticSniperCaller	multiCaller	/^somaticSniperCaller () {$/;"	f
+somaticSniperPostproc	multiCaller	/^somaticSniperPostproc () {$/;"	f
+source_metainfo	mf2vcf.py	/^def source_metainfo():$/;"	f
+strelka2	multiCaller	/^strelka2 () {$/;"	f
+strelka2Germline2sCaller	multiCaller	/^strelka2Germline2sCaller () {$/;"	f
+strelka2Germline2sPostproc	multiCaller	/^strelka2Germline2sPostproc () {$/;"	f
+strelka2SomaticCaller	multiCaller	/^strelka2SomaticCaller () {$/;"	f
+strelka2SomaticPostproc	multiCaller	/^strelka2SomaticPostproc () {$/;"	f
+sync_view	evince_dbus.py	/^    def sync_view(ev_window, path_input, line_number):$/;"	f
+updateVCFcontigs	myCrossMap	/^updateVCFcontigs () {$/;"	f
+vcfgz_path	mf2vcf.py	/^        vcfgz_path = str(sys.argv[2])$/;"	v
