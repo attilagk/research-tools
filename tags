@@ -39,6 +39,7 @@ fetch	grch37-or-grch38-prepare.sh	/^fetch () {$/;"	f
 file_format_metainfo	mf2vcf.py	/^def file_format_metainfo():$/;"	f
 format_sample_fields	mf2vcf.py	/^def format_sample_fields(mfpred):$/;"	f
 formatter	evince_dbus.py	/^    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')$/;"	v
+get_lnum	print-nth-read.sh	/^function get_lnum() {$/;"	f
 handle_find_document_error	evince_dbus.py	/^    def handle_find_document_error(self, error):$/;"	m	class:EvinceWindowProxy
 handle_find_document_reply	evince_dbus.py	/^    def handle_find_document_reply(self, evince_name):$/;"	m	class:EvinceWindowProxy
 handle_get_window_list_error	evince_dbus.py	/^    def handle_get_window_list_error (self, e):$/;"	m	class:EvinceWindowProxy

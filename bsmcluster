@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+key="$HOME/AWS-accounts/chesslab/id_rsa-APKAQLRXOYC2GMMIHX4D"
+pcluster ssh bsmn -i $key
